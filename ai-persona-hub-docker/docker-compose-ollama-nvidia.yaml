@@ -1,0 +1,31 @@
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - 11434:11434
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ollama list || exit 1
+      interval: 10s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+  ollama-models-pull:
+    image: curlimages/curl:8.6.0
+    container_name: ollama-models-pull
+    command: >-
+      http://ollama:11434/api/pull -d '{"name": "mistral"}'
+    depends_on:
+      ollama:
+        condition: service_healthy
+volumes:
+  ollama_data:

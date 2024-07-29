@@ -5,3 +5,124 @@
 -----------
 docker-compose -f docker-compose.yaml up -d
 ----------
+----------
+Ollama Docker setup->
+https://github.com/lgdd/chatollama
+
+CPU run->
+docker-compose -f docker-compose-ollama-cpu.yaml up -d
+OR
+To Run on GPU
+1.Download Nvidia CUDA from https://developer.nvidia.com/cuda-toolkit
+2. Add below in Docker config file so Docker can access Nvidia
+"runtimes": {
+    "nvidia": {
+      "path": "nvidia-container-runtime",
+      "runtimeArgs": []
+    }
+  }
+  
+4. Must restart your system
+  
+5. To test if Docker is able to connect to Nvidia driver or not-
+docker run --runtime nvidia --rm nvidia/cuda:12.5.1-base-ubuntu24.04 nvidia-smi
+Note:  cuda tag in above command must match with CUDA version Of your system. Search for tag (12.5.1) on Nvidia/CUDA Docker hub page and 
+find correct tag.
+
+6. If last command worked then it means you can run ollama container on GPU. run command - 
+docker-compose -f docker-compose-ollama-nvidia.yaml up -d
+
+---------
+stability-ai->
+https://github.com/AbdBarho/stable-diffusion-webui-docker
+API-Docs->https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/API
+
+Go inside ai-persona-hub-docker/stability-ai folder
+1. docker compose --profile download up --build -d
+Important: wait until its done, then only run below. Check logs of webui-docker-download container to see completion is done or not. Once its done then webui-docker-download containers will be stopped. It will take time.
+
+2. docker compose --profile auto-cpu up --build -d
+or 
+GPU-BASED->
+docker compose --profile auto up --build -d
+
+Note: data folder is  generated
+
+Note: Inside services/Automatic1111 foler make below changes- 
+1. In Dockerfile add -o Acquire::Max-FutureTime=86400 in apt-get command if you face issue-
+
+RUN --mount=type=cache,target=/var/cache/apt \
+  apt-get -o Acquire::Max-FutureTime=86400 update && \
+  apt-get -o Acquire::Max-FutureTime=86400 install -y fonts-dejavu-core rsync git jq moreutils aria2 \
+  ffmpeg libglfw3-dev libgles2-mesa-dev pkg-config libcairo2 libcairo2-dev build-essential
+  
+2. Change clone.sh to->
+#!/bin/bash
+
+set -Eeuox pipefail
+
+REPO_NAME="$1"
+REPO_URL="$2"
+COMMIT_HASH="$3"
+MAX_RETRIES=1000
+RETRY_DELAY=10
+
+mkdir -p /repositories/"$REPO_NAME"
+cd /repositories/"$REPO_NAME"
+git init
+git remote add origin "$REPO_URL"
+
+for i in $(seq 1 $MAX_RETRIES); do
+  if git fetch origin "$COMMIT_HASH" --depth=1; then
+    break
+  elif [ "$i" -eq "$MAX_RETRIES" ]; then
+    echo "Failed to fetch repository after $MAX_RETRIES attempts."
+    exit 1
+  else
+    echo "Retrying fetch in $RETRY_DELAY seconds..."
+    sleep $RETRY_DELAY
+  fi
+done
+
+git reset --hard "$COMMIT_HASH"
+rm -rf .git
+
+  
+  
+Note: To save memory issue, run ollama via setp (outside docker).
+
+-------------------------------FrontEnd-------------------
+create-react-app is not recommended anymore so use vite to create react-app
+
+1. npm create vite
+2. cd tinder-ai-frontend/
+3. npm install
+4. code . (it will open vscode with full project imported automatically)
+5. npm run dev
+6. npm install -D tailwindcss  (-D is for dev dependencies, will not be packaged)
+7. npm install -D postcss autoprefixer
+8. npm install lucide-react
+9. npx tailwindcss init -p  (will create tailwind config files)
+
+
+Note: 
+--> 
+this command will start a small server and will server the content of the folder. Run this command on the folder where all images are saved so that images can be fetched.
+npm install --global http-server 
+http-server -p 8084
+
+------------------------------
+records-
+db.Profile.insertOne({
+    "isBot": true,
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+    "age": 30,
+    "ethnicity": "Caucasian",
+    "gender": "MALE",
+    "bio": "Software developer with a passion for coding and AI.",
+    "imageUrls": "../../../1.png",
+    "myersBriggsPersonalityType": "INTJ",
+    "matchedProfiles": ["12346"]
+})
