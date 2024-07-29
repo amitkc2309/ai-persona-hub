@@ -1,0 +1,33 @@
+services:
+  ai-persona-mongo:
+    image: mongo
+    container_name: ai-persona-mongo
+    environment:
+      MONGO_INITDB_DATABASE: ai-persona-mongo
+    ports:
+      - '27017:27017'
+    healthcheck:
+      test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - ai-persona-mongo-network
+
+  ai-persona-discovery-server:
+    container_name: ai-persona-discovery-server
+    image: amitking2309/ai-persona-discovery-server
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_DATA_MONGODB_DATABASE: "tinder"
+      SPRING_DATA_MONGODB_HOST: "tindermongo"
+      SPRING_DATA_MONGODB_POST: "27017"
+    networks:
+      - ai-persona-mongo-network
+
+
+networks:
+  ai-persona-mongo-network:
+    driver: "bridge"

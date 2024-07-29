@@ -1,0 +1,59 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: profiles-conversation
+  data:
+    mongodb:
+      database: ai-persona-mongo
+      host: localhost
+      port: 27017
+
+  #Ollama
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        options:
+          temperature: 0.7
+          model: mistral
+
+image:
+  dir: ../../images/
+stability:
+  ai: http://localhost:7860/sdapi/v1/txt2img
+  quality: 10 # Higher value is good. Up to 50
+
+
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        data:
+#          mongodb: DEBUG
+
+#Actuator with readiness and liveness
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+#For service discovery
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/

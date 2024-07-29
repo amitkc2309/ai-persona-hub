@@ -1,0 +1,7 @@
+---------------Build packs--------
+./mvnw spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=amitking2309/ai-persona-discovery-server
+./mvnw spring-boot:build-image -DskipTests -Dspring-boot.build-image.imageName=amitking2309/ai-persona-profiles-conversation
+
+-----------
+docker-compose -f docker-compose.yaml up -d
+----------
