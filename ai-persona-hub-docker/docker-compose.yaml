@@ -48,7 +48,7 @@ services:
       IMAGE_DIR: /images
     command: sh -c "chmod -R 777 /images"
     volumes:
-      - images-data:/images
+      - ./images-data:/images
     depends_on:
       #ai-persona-discovery-server:
         #condition: service_healthy
@@ -56,8 +56,6 @@ services:
         condition: service_healthy
     networks:
       - ai-persona-mongo-network
-volumes:
-  images-data:
 
 networks:
   ai-persona-mongo-network:
