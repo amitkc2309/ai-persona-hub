@@ -15,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -93,7 +94,7 @@ public class ProfileService {
                         byte[] imageBytes = Base64.getDecoder().decode(base64Image);
                         log.info("****IMAGE_DIR="+CommonConstants.getImageDir());
                         String directoryPath = CommonConstants.getImageDir();
-                        String filePath = directoryPath + profile.getId() + ".png";
+                        String filePath = directoryPath + File.separator + profile.getId() + ".png";
                         Path directory = Paths.get(directoryPath);
 
                         return Mono.fromCallable(() -> {
@@ -101,7 +102,7 @@ public class ProfileService {
                                 try {
                                     Files.createDirectories(directory);
                                 } catch (IOException e) {
-                                    log.info("***error saving profile photo for " + profile.getId());
+                                    log.info("***error creating directory for" + profile.getId());
                                 }
                             }
                             try (FileOutputStream imageOutFile = new FileOutputStream(filePath)) {

@@ -43,9 +43,12 @@ services:
       SPRING_DATA_MONGODB_POST: "27017"
       SPRING_AI_OLLAMA_BASE-URL: http://host.docker.internal:11434
       STABILITY_AI: http://host.docker.internal:7860/sdapi/v1/txt2img
-      STABILITY_QUALITY: 10
+      STABILITY_QUALITY: 2
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://ai-persona-discovery-server:8761/eureka/
-      IMAGE_DIR: /images/
+      IMAGE_DIR: /images
+    command: sh -c "chmod -R 777 /images"
+    volumes:
+      - images-data:/images
     depends_on:
       #ai-persona-discovery-server:
         #condition: service_healthy
@@ -53,6 +56,8 @@ services:
         condition: service_healthy
     networks:
       - ai-persona-mongo-network
+volumes:
+  images-data:
 
 networks:
   ai-persona-mongo-network:
