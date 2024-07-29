@@ -21,12 +21,38 @@ services:
     ports:
       - "8761:8761"
     environment:
-      SPRING_DATA_MONGODB_DATABASE: "tinder"
-      SPRING_DATA_MONGODB_HOST: "tindermongo"
-      SPRING_DATA_MONGODB_POST: "27017"
+      - THC_PATH=/actuator/health
+      - THC_PORT=8081
+    healthcheck:
+      test:  [ "CMD", "/cnb/process/health-check" ]
+      interval: 30s
+      timeout: 10s
+      retries: 4
+      start_period: 10s
     networks:
       - ai-persona-mongo-network
 
+  ai-persona-profiles-conversation:
+    container_name: ai-persona-profiles-conversation
+    image: amitking2309/ai-persona-profiles-conversation
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATA_MONGODB_DATABASE: "ai-persona-mongo"
+      SPRING_DATA_MONGODB_HOST: "ai-persona-mongo"
+      SPRING_DATA_MONGODB_POST: "27017"
+      SPRING_AI_OLLAMA_BASE-URL: http://host.docker.internal:11434
+      STABILITY_AI: http://host.docker.internal:7860/sdapi/v1/txt2img
+      STABILITY_QUALITY: 10
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://ai-persona-discovery-server:8761/eureka/
+      IMAGE_DIR: /images/
+    depends_on:
+      #ai-persona-discovery-server:
+        #condition: service_healthy
+      ai-persona-mongo:
+        condition: service_healthy
+    networks:
+      - ai-persona-mongo-network
 
 networks:
   ai-persona-mongo-network:

@@ -48,7 +48,12 @@ docker compose --profile auto up --build -d
 
 Note: data folder is  generated
 
-Note: Inside services/Automatic1111 foler make below changes- 
+
+
+
+Note : If you face error: ': No such file or directory't execute 'bash while running docker compose command on stability-ai folder 
+then it means some file inside folder has it's format changed. Quick fix would be to download same folders from https://github.com/AbdBarho/stable-diffusion-webui-docker and apply fixed mentioned below->
+
 1. In Dockerfile add -o Acquire::Max-FutureTime=86400 in apt-get command if you face issue-
 
 RUN --mount=type=cache,target=/var/cache/apt \
