@@ -13,7 +13,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 
-const pages = ['My-Chats', 'Generate-AI-Profiles'];
+const pages = ['CHATS', 'GENERATE-AI-FRIENDS'];
 const settings = ['My Profile', 'Logout'];
 
 function AppBarTop() {
@@ -36,40 +36,33 @@ function AppBarTop() {
   };
 
   return (
-    <AppBar position="static" sx={{backgroundColor:'purple'}}>
+    <AppBar position="static" sx={{backgroundColor:'#1ABC9C'}}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-        <Box sx={{ textAlign: 'center'}}>
-          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-          <Typography
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"   
-            variant="caption"
-            sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              color: 'inherit',
-              textDecoration: 'none',
-              display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-            }}
-          >
-            AI-PERSONA-HUB
-          </Typography>
-        </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', }}>
+            <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1, color:'gold' }} />
+            <Typography
+              variant="subtitle1"
+              noWrap
+              component="a"
+              href="#app-bar-with-responsive-menu"
+              sx={{
+                mr: 2,
+                display: { xs: 'none', md: 'flex' },
+                fontFamily: 'monospace',
+                fontWeight: 700,
+                letterSpacing: '.3rem',
+                color: 'inherit',
+                textDecoration: 'none',
+              }}
+            >
+              Ai-Persona-Hub
+            </Typography>
+          </Box>
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
               onClick={handleOpenNavMenu}
-              color="inherit"
+              color='inherit'
             >
               <MenuIcon />
             </IconButton>
@@ -98,31 +91,34 @@ function AppBarTop() {
               ))}
             </Menu>
           </Box>
-          <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: { xs: 'flex', md: 'none' },
-              flexGrow: 1,
-              fontFamily: 'monospace',
-              fontWeight: 500,
-              letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            LOGO
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', }}>
+            <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1, color:'gold' }} />
+            <Typography
+              variant="subtitle1"
+              noWrap
+              component="a"
+              href="#app-bar-with-responsive-menu"
+              sx={{
+                mr: 2,
+                display: { xs: 'flex', md: 'none' },
+                flexGrow: 1,
+                fontFamily: 'monospace',
+                fontWeight: 700,
+                letterSpacing: '.3rem',
+                color: 'inherit',
+                textDecoration: 'none',
+              }}
+            >
+              Ai-Persona-Hub
+            </Typography>
+          </Box>
+          
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Button
                 key={page}
                 onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
+                sx={{ ml: 5 ,my: 2, color: 'white', display: 'block', }}
               >
                 {page}
               </Button>
