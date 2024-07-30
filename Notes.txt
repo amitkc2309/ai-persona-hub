@@ -104,11 +104,11 @@ create-react-app is not recommended anymore so use vite to create react-app
 3. npm install
 4. code . (it will open vscode with full project imported automatically)
 5. npm run dev
-6. npm install @mui/material @emotion/react @emotion/styled
+6. npm install @mui/material @emotion/react @emotion/styled @mui/icons-material
 7. npm install -D tailwindcss
 8. npm install -D postcss autoprefixer
 9. npx tailwindcss init -p
-10. npm install lucide-react  --> optional to get emoticons
+10. npm install lucide-react  --> optional to get icons
 
   
   
@@ -135,3 +135,8 @@ db.Profile.insertOne({
     "myersBriggsPersonalityType": "INTJ",
     "matchedProfiles": ["12346"]
 })
+
+----------------VS code shortcuts---------
+Use Ctrl + ] to indent.
+Ctrl + K, Ctrl + F to format.
+Alt + Shift + O to remove unsed imports

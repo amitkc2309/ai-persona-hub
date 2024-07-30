@@ -1,16 +1,25 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+  import { Box } from '@mui/material';
+  import { useState } from 'react';
+  import ProfileCard from "./Components/ProfileCard";
+  import AppBarTop from "./Components/AppBarTop";
 
-function App() {
-  const [count, setCount] = useState(0)
 
-  return (
-    <>
-      
-    </>
-  )
-}
+  function App() {
+    const [count, setCount] = useState(0)
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'relative',
+          mx: 4,
+        }}>
+        <AppBarTop/>
+        <ProfileCard />
+      </Box>
+    )
+  }
 
-export default App
+  export default App
