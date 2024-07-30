@@ -1,5 +1,7 @@
 package com.ai.persona.profiles_conversation.utils;
 
+import com.ai.persona.profiles_conversation.constants.Gender;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -24,6 +26,12 @@ public class CommonUtility {
 
     public static String getPersonalityTypes() {
         return myersBriggsPersonalityTypes.get(ThreadLocalRandom.current().nextInt(myersBriggsPersonalityTypes.size()));
+    }
+
+    public static Gender getRandomGender() {
+        Gender[] values = Gender.values();
+        Random random = new Random();
+        return values[random.nextInt(values.length)];
     }
 
     private static List<String> generateMyersBriggsTypes() {

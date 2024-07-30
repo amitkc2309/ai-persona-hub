@@ -38,7 +38,7 @@ https://github.com/AbdBarho/stable-diffusion-webui-docker
 API-Docs->https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/API
 
 Go inside ai-persona-hub-docker/stability-ai folder
-1. docker compose --profile download up --build -d
+1. docker compose --profile download up --build -d  --> Run only once in a system
 Important: wait until its done, then only run below. Check logs of webui-docker-download container to see completion is done or not. Once its done then webui-docker-download containers will be stopped. It will take time.
 
 2. docker compose --profile auto-cpu up --build -d

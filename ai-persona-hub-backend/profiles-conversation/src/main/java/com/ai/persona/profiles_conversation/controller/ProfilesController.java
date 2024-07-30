@@ -10,7 +10,6 @@ import lombok.extern.java.Log;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
@@ -25,6 +24,7 @@ import reactor.core.publisher.Mono;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/profiles")
@@ -33,7 +33,6 @@ import java.nio.file.Paths;
 public class ProfilesController {
 
     private final ProfileService profileService;
-    private final OllamaChatModel ollamaChatModel;
 
     @GetMapping("/{profileId}")
     public Mono<ResponseEntity<ProfileDto>> getProfile(@PathVariable String profileId) {
@@ -104,19 +103,12 @@ public class ProfilesController {
     }
 
     @PostMapping("/generate-random")
-    public Mono<ResponseEntity<String>> generateRandomBotProfile(@RequestParam Gender gender) {
-        int randomAge = CommonUtility.getRandomAge();
-        String personalityType = CommonUtility.getPersonalityTypes();
-        String randomEthnicity = CommonUtility.getRandomEthnicity();
-        String prompt = "Create a Tinder profile persona of an personality Type " + personalityType +
-                " " + +randomAge + " year old " + randomEthnicity + " " + gender.toString() + " "
-                + " including the first name, last name, email, myersBriggsPersonalityType and bio. " +
-                "Save the generated profile by calling saveGeneratedProfile function";
-        log.info("prompt to create profile: " + prompt);
-        UserMessage userMessage = new UserMessage(prompt);
-        ChatResponse response = ollamaChatModel.call(new Prompt(userMessage,
-                OllamaOptions.builder().withFunction("saveGeneratedProfile").build()));
-        return Mono.just(ResponseEntity.ok().body(response.getResult().getOutput().getContent()));
+    public ResponseEntity<String> generateRandomBotProfile(@RequestParam(required = false) Gender gender,
+                                                           @RequestParam(required = false) Integer age,
+                                                           @RequestParam(required = false) String ethnicity
+    ) {
+        String response = profileService.generateRandomBotProfile(gender,age,ethnicity);
+        return ResponseEntity.ok().body(response);
     }
 
     @PutMapping

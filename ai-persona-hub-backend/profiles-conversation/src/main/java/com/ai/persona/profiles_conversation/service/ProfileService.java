@@ -1,15 +1,24 @@
 package com.ai.persona.profiles_conversation.service;
 
 import com.ai.persona.profiles_conversation.constants.CommonConstants;
+import com.ai.persona.profiles_conversation.constants.Gender;
 import com.ai.persona.profiles_conversation.dto.ProfileDto;
 import com.ai.persona.profiles_conversation.entity.Profile;
 import com.ai.persona.profiles_conversation.exception.ResourceNotFoundException;
 import com.ai.persona.profiles_conversation.repository.ProfileRepository;
+import com.ai.persona.profiles_conversation.utils.CommonUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.ollama.OllamaChatModel;
+import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -24,6 +33,7 @@ import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +41,7 @@ import java.util.List;
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
+    private final OllamaChatModel ollamaChatModel;
 
     private final WebClient webClient;
 
@@ -60,6 +71,26 @@ public class ProfileService {
         BeanUtils.copyProperties(profileDto, profile, "id");
         profile.setMatchedProfiles(new HashSet<>());
         return profileRepository.save(profile);
+    }
+
+    public String generateRandomBotProfile(Gender gender,Integer age, String ethnicity) {
+        int randomAge = age!=null?age.intValue():CommonUtility.getRandomAge();
+        Gender randomGender = gender!=null?gender:CommonUtility.getRandomGender();
+        String personalityType = CommonUtility.getPersonalityTypes();
+        String randomEthnicity = ethnicity!=null?ethnicity:CommonUtility.getRandomEthnicity();
+        String prompt = "Create a Tinder profile persona of an personality Type " + personalityType +
+                " " + +randomAge + " year old " + randomEthnicity + " " + randomGender.toString() + " "
+                + " including the first name, last name, email, myersBriggsPersonalityType and bio. " +
+                "Save the generated profile by calling saveGeneratedProfile function";
+        log.info("prompt to create profile: " + prompt);
+        CompletableFuture.supplyAsync(()->{
+            UserMessage userMessage = new UserMessage(prompt);
+            ChatResponse response = ollamaChatModel.call(new Prompt(userMessage,
+                    OllamaOptions.builder().withFunction("saveGeneratedProfile").build()));
+            log.info("response from ollama:"+response);
+            return response;
+        });
+        return "Profile generation is in progress";
     }
 
     public Mono<Void> generateAndSaveImage(Profile profile) {
@@ -94,7 +125,7 @@ public class ProfileService {
                         byte[] imageBytes = Base64.getDecoder().decode(base64Image);
                         log.info("****IMAGE_DIR="+CommonConstants.getImageDir());
                         String directoryPath = CommonConstants.getImageDir();
-                        String filePath = directoryPath + File.separator + profile.getId() + ".png";
+                        String filePath = directoryPath + "/" + profile.getId() + ".png";
                         Path directory = Paths.get(directoryPath);
 
                         return Mono.fromCallable(() -> {

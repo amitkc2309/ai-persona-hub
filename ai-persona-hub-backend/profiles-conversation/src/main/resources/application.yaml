@@ -19,10 +19,10 @@ spring:
           model: mistral
 
 image:
-  dir: ../../images/
+  dir: /generated-images
 stability:
   ai: http://localhost:7860/sdapi/v1/txt2img
-  quality: 10 # Higher value is good. Up to 50
+  quality: 2 # Higher value is good. Up to 50
 
 
 #logging:
