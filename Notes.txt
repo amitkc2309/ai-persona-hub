@@ -105,12 +105,18 @@ create-react-app is not recommended anymore so use vite to create react-app
 4. code . (it will open vscode with full project imported automatically)
 5. npm run dev
 6. npm install @mui/material @emotion/react @emotion/styled
-7. npm install lucide-react  --> optional to get emoticons
+7. npm install -D tailwindcss
+8. npm install -D postcss autoprefixer
+9. npx tailwindcss init -p
+10. npm install lucide-react  --> optional to get emoticons
 
+  
+  
+-----------------------
 
 Note: 
 --> 
-this command will start a small server and will server the content of the folder. Run this command on the folder where all images are saved so that images can be fetched.
+Below command will start a small server and will server the content of the folder. Run this command on the folder where all images are saved so that images can be fetched.
 npm install --global http-server 
 http-server -p 8084
 
