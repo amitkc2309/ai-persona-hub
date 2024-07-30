@@ -104,10 +104,8 @@ create-react-app is not recommended anymore so use vite to create react-app
 3. npm install
 4. code . (it will open vscode with full project imported automatically)
 5. npm run dev
-6. npm install -D tailwindcss  (-D is for dev dependencies, will not be packaged)
-7. npm install -D postcss autoprefixer
-8. npm install lucide-react
-9. npx tailwindcss init -p  (will create tailwind config files)
+6. npm install @mui/material @emotion/react @emotion/styled
+7. npm install lucide-react  --> optional to get emoticons
 
 
 Note: 
