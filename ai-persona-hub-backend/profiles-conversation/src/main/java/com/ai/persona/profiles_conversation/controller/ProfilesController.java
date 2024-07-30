@@ -4,13 +4,8 @@ import com.ai.persona.profiles_conversation.constants.Gender;
 import com.ai.persona.profiles_conversation.dto.ProfileDto;
 import com.ai.persona.profiles_conversation.dto.ProfileMatching;
 import com.ai.persona.profiles_conversation.service.ProfileService;
-import com.ai.persona.profiles_conversation.utils.CommonUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
-import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -24,7 +19,6 @@ import reactor.core.publisher.Mono;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/profiles")
@@ -57,7 +51,7 @@ public class ProfilesController {
     }
 
     @GetMapping("/random")
-    public Mono<ResponseEntity<ProfileDto>> getRandomSavedProfileByGender(@RequestParam String gender) {
+    public Mono<ResponseEntity<ProfileDto>> getRandomSavedProfileByGender(@RequestParam(required = false) String gender) {
         return profileService
                 .getRandomSavedProfileByGender(gender)
                 .map(saved -> {

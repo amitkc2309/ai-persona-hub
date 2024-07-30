@@ -32,6 +32,14 @@ find correct tag.
 6. If last command worked then it means you can run ollama container on GPU. run command - 
 docker-compose -f docker-compose-ollama-nvidia.yaml up -d
 
+Ollama logs->
+When you run Ollama on Windows, there are a few different locations. You can view them in the explorer window by hitting <cmd>+R and type in:
+
+explorer %LOCALAPPDATA%\Ollama to view logs. The most recent server logs will be in server.log and older logs will be in server-#.log
+explorer %LOCALAPPDATA%\Programs\Ollama to browse the binaries (The installer adds this to your user PATH)
+explorer %HOMEPATH%\.ollama to browse where models and configuration is stored
+explorer %TEMP% where temporary executable files are stored in one or more ollama* directories
+
 ---------
 stability-ai->
 https://github.com/AbdBarho/stable-diffusion-webui-docker

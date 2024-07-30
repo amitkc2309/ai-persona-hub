@@ -14,4 +14,9 @@ public interface ProfileRepository extends ReactiveMongoRepository<Profile,Strin
             "{ $sample: { size: 1 } }"
     })
     Mono<Profile> getRandomProfileByGender(String gender);
+
+    @Aggregation(pipeline = {
+            "{ $sample: { size: 1 } }"
+    })
+    Mono<Profile> getRandomProfile();
 }

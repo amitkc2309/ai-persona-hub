@@ -16,15 +16,12 @@ import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,7 +30,6 @@ import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -61,9 +57,15 @@ public class ProfileService {
     }
 
     public Mono<Profile> getRandomSavedProfileByGender(String gender) {
-        return profileRepository
-                .getRandomProfileByGender(gender)
-                .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", gender)));
+        if (gender == null) {
+            return profileRepository
+                    .getRandomProfile()
+                    .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", "-no gender specified")));
+        } else {
+            return profileRepository
+                    .getRandomProfileByGender(gender)
+                    .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", gender)));
+        }
     }
 
     public Mono<Profile> saveProfile(ProfileDto profileDto) {
@@ -74,16 +76,22 @@ public class ProfileService {
     }
 
     public String generateRandomBotProfile(Gender gender,Integer age, String ethnicity) {
-        int randomAge = age!=null?age.intValue():CommonUtility.getRandomAge();
-        Gender randomGender = gender!=null?gender:CommonUtility.getRandomGender();
+        int randomAge = age != null ? age.intValue() : CommonUtility.getRandomAge();
+        Gender randomGender = gender != null ? gender : CommonUtility.getRandomGender();
         String personalityType = CommonUtility.getPersonalityTypes();
-        String randomEthnicity = ethnicity!=null?ethnicity:CommonUtility.getRandomEthnicity();
+        String randomEthnicity = ethnicity != null ? ethnicity : CommonUtility.getRandomEthnicity();
         String prompt = "Create a Tinder profile persona of an personality Type " + personalityType +
                 " " + +randomAge + " year old " + randomEthnicity + " " + randomGender.toString() + " "
                 + " including the first name, last name, email, myersBriggsPersonalityType and bio. " +
                 "Save the generated profile by calling saveGeneratedProfile function";
         log.info("prompt to create profile: " + prompt);
-        CompletableFuture.supplyAsync(()->{
+        UserMessage userMessage = new UserMessage(prompt);
+        ChatResponse response = ollamaChatModel.call(new Prompt(userMessage,
+                OllamaOptions.builder().withFunction("saveGeneratedProfile").build()));
+        log.info("response from ollama:" + response);
+        //Below un-blocking code is better but it does not work on docker for some reason
+        /*CompletableFuture.supplyAsync(()->{
+            log.info("prompt to create profile: " + prompt);
             UserMessage userMessage = new UserMessage(prompt);
             ChatResponse response = ollamaChatModel.call(new Prompt(userMessage,
                     OllamaOptions.builder().withFunction("saveGeneratedProfile").build()));
@@ -91,6 +99,8 @@ public class ProfileService {
             return response;
         });
         return "Profile generation is in progress";
+         */
+        return response.getResult().getOutput().getContent();
     }
 
     public Mono<Void> generateAndSaveImage(Profile profile) {
