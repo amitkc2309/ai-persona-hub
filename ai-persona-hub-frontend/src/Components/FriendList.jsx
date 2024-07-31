@@ -35,8 +35,13 @@ export default function FriendList() {
         {
             id: 2,
             primary: 'Birthday Gift',
-            secondary: `Do you have a suggestion for a good present for John on his work
-            anniversary. I am really confused & would love your thoughts on it.`,
+            secondary: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+              enim ad minim veniam, quis nostrud exercitation ullamco laboris
+              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+              reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+              pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa
+              qui officia deserunt mollit anim id est laborum.`,
             person: '/static/images/avatar/1.jpg',
         },
         {
@@ -94,7 +99,7 @@ export default function FriendList() {
         <React.Fragment>
             <AppBarTop />
             <Paper square sx={{
-                width: 650, display: 'flex',
+                width: '80%', display: 'flex',
                 flexDirection: 'column', mt: 1,
                 overflowY: 'auto',
                 maxHeight: '80vh',
@@ -118,7 +123,7 @@ export default function FriendList() {
                                             <Avatar alt="Profile Picture" src={person} />
                                         </ListItemAvatar>
                                         <ListItemText primary={primary}
-                                            secondary={secondary.length > 50 ? `${secondary.slice(0, 70)} ...` : secondary} />
+                                            secondary={secondary.length > 50 ? `${secondary.slice(0, 300)} ...` : secondary} />
                                         <Box
                                             className="chat-icon"
                                             sx={{

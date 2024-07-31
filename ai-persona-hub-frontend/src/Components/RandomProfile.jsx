@@ -21,7 +21,7 @@ export default function RandomProfile() {
   return (
     <>
       <AppBarTop />
-      <Box sx={{ width: 650 }}>
+      <Box sx={{ width: "80%", maxWidth: 650}}>
         <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between' }}>
           <IconButton aria-label="add to favorites" sx={{ color: 'red' }}>
             <FavoriteIcon />
@@ -38,7 +38,7 @@ export default function RandomProfile() {
         }}>
           <CardMedia
             component="img"
-            image="http://192.168.1.53:8084/66a92ceb02f1af5579e7e095.png"
+            image="http://192.168.148.105:8084/66a92ceb02f1af5579e7e095.png"
             alt="Image not available"
           />
           <CardHeader title="Foo Bar" subheader="age" />
