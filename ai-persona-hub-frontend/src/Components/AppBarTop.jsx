@@ -49,7 +49,7 @@ function AppBarTop() {
 
   return (
     <>
-      <AppBar position="static" sx={{ backgroundColor: '#1ABC9C' }}>
+      <AppBar position="static" sx={{ backgroundColor: theme => theme.palette.primary.main }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', }}>

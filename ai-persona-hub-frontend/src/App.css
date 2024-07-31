@@ -1,4 +1,5 @@
 .scrollable {
-    scrollbar-width: thin; /* For Firefox */
-    scrollbar-color: #888 #f1f1f1; /* thumb color and track color */
-  }
+  scrollbar-width: thin;
+  /* For Firefox */
+  scrollbar-color: #888 #f1f1f1;
+}

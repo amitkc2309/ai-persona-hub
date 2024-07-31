@@ -103,7 +103,7 @@ export default function FriendList() {
                     width: '8px',
                 },
                 '&::-webkit-scrollbar-thumb': {
-                    backgroundColor: '#1ABC9C',
+                    backgroundColor: theme => theme.palette.primary.main,
                     borderRadius: '5px',
                 },
             }}>
@@ -128,7 +128,7 @@ export default function FriendList() {
                                             opacity: 0,
                                             transition: 'opacity 0.3s',
                                             fontSize: 24,
-                                            color: '#1ABC9C',
+                                            color: theme => theme.palette.primary.main,
                                         }}
                                     >
                                         <Tooltip title="Chat">
