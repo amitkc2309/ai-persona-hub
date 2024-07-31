@@ -23,13 +23,13 @@ export default function RandomProfile() {
       <AppBarTop />
       <Box sx={{ width: 650 }}>
         <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between' }}>
-          <IconButton aria-label="add to favorites">
+          <IconButton aria-label="add to favorites" sx={{ color: 'red' }}>
             <FavoriteIcon />
           </IconButton>
-          <IconButton aria-label="share" onClick={goToChat}>
+          <IconButton aria-label="chat" onClick={goToChat} sx={{ color: theme => theme.palette.primary.main }}>
             <Chat />
           </IconButton>
-          <IconButton aria-label="share">
+          <IconButton aria-label="skip" sx={{ color: '#007bff' }}>
             <SkipNext />
           </IconButton>
         </Box>

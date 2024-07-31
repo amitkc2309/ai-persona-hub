@@ -19,7 +19,7 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import AppBarTop from "./AppBarTop"
-import { Card, CardContent, CardHeader, Tooltip } from '@mui/material';
+import { Card, CardContent, CardHeader, Divider, Tooltip } from '@mui/material';
 import { Chat } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -98,6 +98,7 @@ export default function FriendList() {
                 flexDirection: 'column', mt: 1,
                 overflowY: 'auto',
                 maxHeight: '80vh',
+                border: 'none',boxShadow: 'none',
                 scrollBehavior: 'smooth',
                 '&::-webkit-scrollbar': {
                     width: '8px',
@@ -107,36 +108,36 @@ export default function FriendList() {
                     borderRadius: '5px',
                 },
             }}>
-                <List sx={{}}>
+                <List sx={{border: 'none',boxShadow: 'none', m:.5}}>
                     {messages.map(({ id, primary, secondary, person }) => (
-                        <React.Fragment key={id}>
-                            <Card sx={{ mb: 1 }}>
-                                <ListItemButton sx={{ position: 'relative', '&:hover .chat-icon': { opacity: 1 } }}
-                                    onClick={goToChat}>
-                                    <ListItemAvatar>
-                                        <Avatar alt="Profile Picture" src={person} />
-                                    </ListItemAvatar>
-                                    <ListItemText primary={primary} 
-                                    secondary={secondary.length > 50 ? `${secondary.slice(0, 70)} ...` : secondary} />
-                                    <Box
-                                        className="chat-icon"
-                                        sx={{
-                                            position: 'absolute',
-                                            right: 16,
-                                            top: '50%',
-                                            transform: 'translateY(-50%)',
-                                            opacity: 0,
-                                            transition: 'opacity 0.3s',
-                                            fontSize: 24,
-                                            color: theme => theme.palette.primary.main,
-                                        }}
-                                    >
-                                        <Tooltip title="Chat">
-                                            <Chat />
-                                        </Tooltip>
-                                    </Box>
-                                </ListItemButton>
-                            </Card>
+                        <React.Fragment key={id}>       
+                                <Card sx={{ mb: 1, borderRadius: '16px', boxShadow:4}}>
+                                    <ListItemButton sx={{ position: 'relative', '&:hover .chat-icon': { opacity: 1 } }}
+                                        onClick={goToChat}>
+                                        <ListItemAvatar>
+                                            <Avatar alt="Profile Picture" src={person} />
+                                        </ListItemAvatar>
+                                        <ListItemText primary={primary}
+                                            secondary={secondary.length > 50 ? `${secondary.slice(0, 70)} ...` : secondary} />
+                                        <Box
+                                            className="chat-icon"
+                                            sx={{
+                                                position: 'absolute',
+                                                right: 16,
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                opacity: 0,
+                                                transition: 'opacity 0.3s',
+                                                fontSize: 24,
+                                                color: theme => theme.palette.primary.main,
+                                            }}
+                                        >
+                                            <Tooltip title="Chat">
+                                                <Chat />
+                                            </Tooltip>
+                                        </Box>
+                                    </ListItemButton>
+                                </Card>
                         </React.Fragment>
                     ))}
                 </List>
