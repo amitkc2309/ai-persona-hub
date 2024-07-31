@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect,useRef } from 'react';
 import { useLocation } from "react-router-dom";
 import { AppBar, Toolbar, Typography, IconButton, Paper, List, ListItem, ListItemAvatar, Avatar, ListItemText, TextField, Button, Divider, Card, CardHeader } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
@@ -9,6 +9,7 @@ import { Box } from "@mui/material";
 export default function Chat() {
     const location = useLocation();
     const data = location.state?.data;
+    const messagesEndRef = useRef(null);
     const sampleMessages = [
         { id: 1, sender: 'John', message: '1' },
         { id: 2, sender: 'You', message: '2' },
@@ -28,6 +29,10 @@ export default function Chat() {
             setNewMessage('');
         }
     };
+    // Scroll to bottom when messages update
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
 
     return (
         <React.Fragment>
@@ -75,6 +80,8 @@ export default function Chat() {
                                 </Box>
                             </React.Fragment>
                         ))}
+                        {/* Reference for scrolling */}
+                        <div ref={messagesEndRef} />
                     </List>
                 </Paper>
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 4,}}>
