@@ -30,14 +30,16 @@ export default function GenerateAIProfile() {
     return (
         <>
             <AppBarTop />
-            <Box sx={{ maxWidth: 512, display: 'flex', flexDirection: 'column',}}>
-                <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                    <AutoAwesomeIcon />
-                </Avatar>
-                <Typography component="h1" variant="h5">
-                    Generate AI Friends
-                </Typography>
-                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1,}} >
+            <Box sx={{ maxWidth: 512, display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                        <AutoAwesomeIcon />
+                    </Avatar>
+                    <Typography component="h1" variant="h5">
+                        Generate AI Friends
+                    </Typography>
+                </Box>
+                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, }} >
                     <InputLabel id="gender-label">Gender</InputLabel>
                     <Select labelId="gender-label" name="gender" fullWidth autoFocus defaultValue="FEMALE">
                         <MenuItem value="FEMALE">Female</MenuItem>
@@ -70,7 +72,7 @@ export default function GenerateAIProfile() {
                 </Box>
                 <CardContent>
                     <Typography variant="body2" color="text.secondary">
-                        Create AI friends tailored to your preferences. Once generated, they will be added to your friends list, 
+                        Create AI friends tailored to your preferences. Once generated, they will be added to your friends list,
                         allowing you to chat with them.
                     </Typography>
                 </CardContent>
