@@ -6,6 +6,7 @@ import GenerateAIProfile from "./Components/GenerateAIProfile"
 import FriendList from "./Components/FriendList"
 import Chat from "./Components/Chat"
 import theme from "./Components/Theme"
+import AppBarTop from "./Components/AppBarTop"
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           mx: 4,
         }}>
         <Router>
+        <AppBarTop/>
           <Routes>
             <Route path="/" element={<RandomProfile />} />
             <Route path="/generate-ai-profile" element={<GenerateAIProfile />} />

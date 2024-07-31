@@ -20,7 +20,6 @@ export default function RandomProfile() {
   };
   return (
     <>
-      <AppBarTop />
       <Box sx={{ width: "80%", maxWidth: 650}}>
         <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between' }}>
           <IconButton aria-label="add to favorites" sx={{ color: 'red' }}>

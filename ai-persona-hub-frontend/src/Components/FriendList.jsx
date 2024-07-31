@@ -97,7 +97,6 @@ export default function FriendList() {
 
     return (
         <React.Fragment>
-            <AppBarTop />
             <Paper square sx={{
                 width: '80%', display: 'flex',
                 flexDirection: 'column', mt: 1,

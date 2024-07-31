@@ -36,7 +36,6 @@ export default function Chat() {
 
     return (
         <React.Fragment>
-            <AppBarTop />
             <Box sx={{ width: "80%", display: 'flex', flexDirection: 'column', mt: 1 }}>
                 <Card sx={{ border: 'none', boxShadow: 'none', display: 'flex', alignItems: 'center' }}>
                     <Avatar alt="Profile Picture" src="http://192.168.148.105:8084/66a92ceb02f1af5579e7e095.png" sx={{ mr: 1 }} />
