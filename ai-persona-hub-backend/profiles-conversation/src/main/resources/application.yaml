@@ -31,6 +31,13 @@ stability:
 #      springframework:
 #        data:
 #          mongodb: DEBUG
+logging:
+  level:
+    org.springframework.web.reactive.config: DEBUG
+    org.springframework.web.reactive.function.client: DEBUG
+    org.springframework.web.reactive.function.server: DEBUG
+    org.springframework.web.reactive.function.server.support: DEBUG
+
 
 #Actuator with readiness and liveness
 management:

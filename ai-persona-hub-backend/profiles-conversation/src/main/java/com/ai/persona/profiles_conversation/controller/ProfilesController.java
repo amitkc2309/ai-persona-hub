@@ -50,6 +50,7 @@ public class ProfilesController {
                 });
     }
 
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     @GetMapping("/random")
     public Mono<ResponseEntity<ProfileDto>> getRandomSavedProfileByGender(@RequestParam(required = false) String gender) {
         return profileService

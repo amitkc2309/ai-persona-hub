@@ -1,28 +1,47 @@
 import { Avatar, Box, Button, Card, CardContent, CardHeader, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import AppBarTop from "./AppBarTop"
 import { useState } from "react";
+import config from "../config.json"
+import axios from "axios";
 
 export default function GenerateAIProfile() {
-    const [error, setError] = useState('');
+    const [ageError, setAgeError] = useState('');
+    const [createError, setCreateError] = useState(false);
+    const [created, setCreated] = useState(false);
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-    const handleSubmit = (event) => {
+
+    const handleCreateAIProfile = async (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
+        const payload = {
+            gender: data.get('gender'),
+            age: data.get('age'),
+            ethnicity: data.get('ethnicity'),
+        };
+        try {
+            const response = await axios
+                .get(`${config.BACKEND_URL}/profiles/random/`);
+            setCreated(true);
+            setCreateError(false);
+        } catch (error) {
+            setCreateError(error);
+            setCreated(false)
+            console.error('Failed to Create AI profile', error);
+        }
     };
 
     const handleAgeChange = (event) => {
         const value = event.target.value;
         if (value === '') {
-            setError(null);
+            setAgeError(null);
             setIsButtonDisabled(false);
         }
         else if (value < 18 || value > 100) {
             setIsButtonDisabled(true);
-            setError('Age must be between 18 and 100');
+            setAgeError('Age must be between 18 and 100');
         }
         else {
-            setError(null);
+            setAgeError(null);
             setIsButtonDisabled(false);
         }
     }
@@ -38,7 +57,7 @@ export default function GenerateAIProfile() {
                         Generate AI Friends
                     </Typography>
                 </Box>
-                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, }} >
+                <Box component="form" onSubmit={handleCreateAIProfile} noValidate sx={{ mt: 1, }} >
                     <InputLabel id="gender-label">Gender</InputLabel>
                     <Select labelId="gender-label" name="gender" fullWidth autoFocus defaultValue="FEMALE">
                         <MenuItem value="FEMALE">Female</MenuItem>
@@ -46,7 +65,7 @@ export default function GenerateAIProfile() {
                         <MenuItem value="TRANS">Other</MenuItem>
                     </Select>
                     <TextField label="Age" name="age" fullWidth margin="normal"
-                        type="number" inputProps={{ min: 18, max: 100, }} helperText={error} error={!!error} onChange={handleAgeChange}
+                        type="number" inputProps={{ min: 18, max: 100, }} helperText={ageError} error={!!ageError} onChange={handleAgeChange}
                     />
                     <InputLabel id="ethnicity-label">Ethnicity</InputLabel>
                     <Select labelId="ethnicity-label" name="ethnicity" fullWidth autoFocus defaultValue="Indian">
@@ -69,6 +88,16 @@ export default function GenerateAIProfile() {
                         Create a Friend
                     </Button>
                 </Box>
+                { createError &&
+                    (<Typography color="error">
+                        AI Profile Creation failed. Please Try after sommetimes...
+                    </Typography>)
+                }
+                { created &&
+                    (<Typography sx={{fontWeight: 'bold', color: 'success.main'}}>
+                        AI profile creation request has been sent to our systems. It can take upto 2 minutes.
+                    </Typography>)
+                }
                 <CardContent>
                     <Typography variant="body2" color="text.secondary">
                         Create AI friends tailored to your preferences. Once generated, they will be added to your friends list,
