@@ -19,8 +19,12 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import AppBarTop from "./AppBarTop"
+import { Card, CardContent, CardHeader } from '@mui/material';
+import { Chat } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 export default function FriendList() {
+    const navigate = useNavigate();
     const messages = [
         {
             id: 1,
@@ -69,6 +73,11 @@ export default function FriendList() {
             person: '/static/images/avatar/1.jpg',
         },
     ];
+
+    const goToChat = () => {
+        navigate('/chat', { state: { data: 'example data' } });
+      };
+
     return (
         <React.Fragment>
             <AppBarTop />
@@ -87,12 +96,27 @@ export default function FriendList() {
                 <List sx={{}}>
                     {messages.map(({ id, primary, secondary, person }) => (
                         <React.Fragment key={id}>
-                            <ListItemButton>
+                            <Card sx={{ mb: 1 }}>
+                             <ListItemButton onClick={goToChat}>
                                 <ListItemAvatar>
                                     <Avatar alt="Profile Picture" src={person} />
                                 </ListItemAvatar>
-                                <ListItemText primary={primary} secondary={secondary} />
-                            </ListItemButton>
+                                <ListItemText primary={primary} secondary={secondary}/>
+                            </ListItemButton> 
+                            </Card>
+                            {/* <Card sx={{ mb: 1 }}>
+                                <Avatar alt="Profile Picture" src={person} />
+                                <CardHeader title="Foo Bar" subheader="age" />
+                                <CardContent>
+                                    <Typography variant="subtitle1" color="text.secondary">
+                                        {primary}
+                                        {secondary}
+                                    </Typography>
+                                </CardContent>
+                                <IconButton aria-label="share" sx={{alignItems:'end'}}>
+                                    <Chat />
+                                </IconButton>
+                            </Card> */}
                         </React.Fragment>
                     ))}
                 </List>

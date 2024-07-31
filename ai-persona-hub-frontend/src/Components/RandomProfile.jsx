@@ -10,9 +10,14 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { Box } from '@mui/material';
 import AppBarTop from './AppBarTop';
+import { useNavigate } from 'react-router-dom';
 
 export default function RandomProfile() {
   const [expanded, setExpanded] = React.useState(false);
+  const navigate = useNavigate();
+  const goToChat = () => {
+    navigate('/chat', { state: { data: 'example data' } });
+  };
   return (
     <>
       <AppBarTop/>
@@ -21,7 +26,7 @@ export default function RandomProfile() {
           <IconButton aria-label="add to favorites">
             <FavoriteIcon />
           </IconButton>
-          <IconButton aria-label="share">
+          <IconButton aria-label="share" onClick={goToChat}>
             <Chat />
           </IconButton>
           <IconButton aria-label="share">

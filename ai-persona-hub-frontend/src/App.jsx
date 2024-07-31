@@ -5,6 +5,7 @@ import { useState } from 'react';
 import RandomProfile from "./Components/RandomProfile"
 import GenerateAIProfile from "./Components/GenerateAIProfile"
 import FriendList from "./Components/FriendList"
+import Chat from "./Components/Chat"
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
           <Route path="/" element={<RandomProfile/>} />
           <Route path="/generate-ai-profile" element={<GenerateAIProfile/>} />
           <Route path="/friend-list" element={<FriendList/>} />
+          <Route path="/chat" element={<Chat/>} />
         </Routes>
       </Router>
     </Box>
