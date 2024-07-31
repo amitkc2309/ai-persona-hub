@@ -20,6 +20,7 @@ const settings = ['My Profile', 'Logout'];
 function AppBarTop() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const navigate = useNavigate();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -29,7 +30,10 @@ function AppBarTop() {
   };
 
   const handleCloseNavMenu = () => {
-    const navigate = useNavigate();
+    setAnchorElNav(null);
+  };
+
+  const handleNav = (pages) => {
     const pageToRoute = {
       'HOME': '/',
       'GENERATE-AI-FRIENDS': '/generate-ai-profile'
@@ -95,7 +99,9 @@ function AppBarTop() {
                 }}
               >
                 {pages.map((page) => (
-                  <MenuItem key={page} onClick={handleCloseNavMenu}>
+                  <MenuItem key={page} 
+                  onClick={()=>handleNav(page)}
+                  >
                     <Typography textAlign="center">{page}</Typography>
                   </MenuItem>
                 ))}
@@ -129,7 +135,7 @@ function AppBarTop() {
               {pages.map((page) => (
                 <Button
                   key={page}
-                  onClick={handleCloseNavMenu}
+                  onClick={()=>handleNav(page)}
                   sx={{ ml: 5, my: 2, color: 'white', display: 'block', }}
                 >
                   {page}
