@@ -4,6 +4,7 @@ import { Box } from '@mui/material';
 import { useState } from 'react';
 import RandomProfile from "./Components/RandomProfile"
 import GenerateAIProfile from "./Components/GenerateAIProfile"
+import FriendList from "./Components/FriendList"
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Routes>
           <Route path="/" element={<RandomProfile/>} />
           <Route path="/generate-ai-profile" element={<GenerateAIProfile/>} />
+          <Route path="/friend-list" element={<FriendList/>} />
         </Routes>
       </Router>
     </Box>

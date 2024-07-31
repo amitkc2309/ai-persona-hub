@@ -36,7 +36,8 @@ function AppBarTop() {
   const handleNav = (pages) => {
     const pageToRoute = {
       'HOME': '/',
-      'GENERATE-AI-FRIENDS': '/generate-ai-profile'
+      'GENERATE-AI-FRIENDS': '/generate-ai-profile',
+      'AI-CHAT': '/friend-list'
     };
     setAnchorElNav(null);
     navigate(pageToRoute[pages]);
