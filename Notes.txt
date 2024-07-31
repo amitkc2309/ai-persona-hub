@@ -117,6 +117,8 @@ create-react-app is not recommended anymore so use vite to create react-app
 8. npm install -D postcss autoprefixer
 9. npx tailwindcss init -p
 10. npm install lucide-react  --> optional to get icons
+11. npm install react-router-dom
+
 
   
   
