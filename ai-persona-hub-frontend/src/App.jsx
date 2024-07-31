@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import CssBaseline from "@mui/material/CssBaseline"; //Do not remove
 import { Box } from '@mui/material';
 import { useState } from 'react';
 import RandomProfile from "./Components/RandomProfile"

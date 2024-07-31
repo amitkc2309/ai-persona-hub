@@ -5,6 +5,9 @@ import tailwindcss from 'tailwindcss'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    include: ['@mui/material/Tooltip', '@emotion/styled'],
+  },
   css: {
     postcss: {
       plugins: [tailwindcss()]
