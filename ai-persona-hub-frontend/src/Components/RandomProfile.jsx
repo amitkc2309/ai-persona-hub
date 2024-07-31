@@ -20,9 +20,9 @@ export default function RandomProfile() {
   };
   return (
     <>
-      <AppBarTop/>
-      <Box sx={{ maxWidth: 512 }}>
-        <Box sx={{ maxWidth: 512, mt: 1, display: 'flex', justifyContent: 'space-between' }}>
+      <AppBarTop />
+      <Box sx={{ width: 650 }}>
+        <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between' }}>
           <IconButton aria-label="add to favorites">
             <FavoriteIcon />
           </IconButton>
@@ -33,18 +33,24 @@ export default function RandomProfile() {
             <SkipNext />
           </IconButton>
         </Box>
-        <Card sx={{ maxWidth: 512, mt: 1 }}>
+        <Card sx={{
+          mt: 1,
+        }}>
           <CardMedia
             component="img"
-            image="http://localhost:8080/profiles/image/66a92ceb02f1af5579e7e095"
+            image="http://192.168.1.53:8084/66a92ceb02f1af5579e7e095.png"
             alt="Image not available"
           />
           <CardHeader title="Foo Bar" subheader="age" />
           <CardContent>
             <Typography variant="body2" color="text.secondary">
-              This impressive paella is a perfect party dish and a fun meal to cook
-              together with your guests. Add 1 cup of frozen peas along with the mussels,
-              if you like.
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+              enim ad minim veniam, quis nostrud exercitation ullamco laboris
+              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+              reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+              pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa
+              qui officia deserunt mollit anim id est laborum.
             </Typography>
           </CardContent>
         </Card>
