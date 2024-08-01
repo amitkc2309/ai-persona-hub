@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 @RequestMapping("/profiles")
 @RequiredArgsConstructor
 @Log
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ProfilesController {
 
     private final ProfileService profileService;
@@ -50,7 +51,6 @@ public class ProfilesController {
                 });
     }
 
-    @CrossOrigin(origins = "*", allowedHeaders = "*")
     @GetMapping("/random")
     public Mono<ResponseEntity<ProfileDto>> getRandomSavedProfileByGender(@RequestParam(required = false) String gender) {
         return profileService
@@ -103,7 +103,7 @@ public class ProfilesController {
                                                            @RequestParam(required = false) String ethnicity
     ) {
         String response = profileService.generateRandomBotProfile(gender,age,ethnicity);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping

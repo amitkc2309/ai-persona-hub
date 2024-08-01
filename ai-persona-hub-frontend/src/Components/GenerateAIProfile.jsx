@@ -19,8 +19,8 @@ export default function GenerateAIProfile() {
             ethnicity: data.get('ethnicity'),
         };
         try {
-            const response = await axios
-                .get(`${config.BACKEND_URL}/profiles/random/`);
+            const response = await axios.
+            post(`${config.BACKEND_URL}/profiles/generate-random`,payload);
             setCreated(true);
             setCreateError(false);
         } catch (error) {

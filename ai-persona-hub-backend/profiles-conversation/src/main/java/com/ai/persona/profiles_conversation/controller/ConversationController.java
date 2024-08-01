@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/conversation")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ConversationController {
 
     private final ConversationService conversationService;

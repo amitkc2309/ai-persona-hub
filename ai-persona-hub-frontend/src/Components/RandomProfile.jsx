@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Chat, SkipNext } from '@mui/icons-material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -11,13 +11,32 @@ import Typography from '@mui/material/Typography';
 import { Box } from '@mui/material';
 import AppBarTop from './AppBarTop';
 import { useNavigate } from 'react-router-dom';
+import config from "../config.json"
+import axios from 'axios';
 
 export default function RandomProfile() {
   const [expanded, setExpanded] = React.useState(false);
   const navigate = useNavigate();
+  const [createError, setCreateError] = useState(false);
+    const [created, setCreated] = useState(false);
+    const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const goToChat = () => {
     navigate('/chat', { state: { data: 'example data' } });
   };
+  const handlegetRandomProfile = async (event) => {
+    event.preventDefault();
+    try {
+        const response = await axios.
+        get(`${config.BACKEND_URL}/profiles/random`);
+        setCreated(true);
+        setCreateError(false);
+        console.log(response)
+    } catch (error) {
+        setCreateError(error);
+        setCreated(false)
+        console.error('Failed to Create AI profile', error);
+    }
+};
   return (
     <>
       <Box sx={{ width: "80%", maxWidth: 650}}>
@@ -28,7 +47,7 @@ export default function RandomProfile() {
           <IconButton aria-label="chat" onClick={goToChat} sx={{ color: theme => theme.palette.primary.main }}>
             <Chat />
           </IconButton>
-          <IconButton aria-label="skip" sx={{ color: '#007bff' }}>
+          <IconButton aria-label="skip" sx={{ color: '#007bff' }} onClick={handlegetRandomProfile}>
             <SkipNext />
           </IconButton>
         </Box>
