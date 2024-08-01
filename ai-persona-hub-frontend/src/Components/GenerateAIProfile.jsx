@@ -19,14 +19,14 @@ export default function GenerateAIProfile() {
             ethnicity: data.get('ethnicity'),
         };
         try {
-            const response = await axios.
+            const response=await axios.
             post(`${config.BACKEND_URL}/profiles/generate-random`,payload);
             setCreated(true);
             setCreateError(false);
-        } catch (error) {
-            setCreateError(error);
+        } catch (e) {
+            setCreateError(true);
             setCreated(false)
-            console.error('Failed to Create AI profile', error);
+            console.error('Failed to Create AI profile', e);
         }
     };
 

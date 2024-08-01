@@ -71,7 +71,8 @@ export default function RandomProfile() {
         }}>
           <CardMedia
             component="img"
-            image={randomProfile.imageUrls}
+            // image={randomProfile.imageUrls}
+            image={`${config.BACKEND_URL}/profiles/image/${randomProfile.id}`}
             alt="Image not available"
             sx={{
             }}
