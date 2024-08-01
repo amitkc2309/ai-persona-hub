@@ -56,7 +56,8 @@ export default function RandomProfile() {
         }}>
           <CardMedia
             component="img"
-            image="http://192.168.148.105:8084/66a92ceb02f1af5579e7e095.png"
+            height="194"
+            image="https://picsum.photos/200"
             alt="Image not available"
           />
           <CardHeader title="Foo Bar" subheader="age" />
