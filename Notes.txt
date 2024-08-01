@@ -142,7 +142,7 @@ db.Profile.insertOne({
     "ethnicity": "Caucasian",
     "gender": "MALE",
     "bio": "Software developer with a passion for coding and AI.",
-    "imageUrls": "../../../1.png",
+    "imageUrls": "https://picsum.photos/512",
     "myersBriggsPersonalityType": "INTJ",
     "matchedProfiles": ["12346"]
 })

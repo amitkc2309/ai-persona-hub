@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Chat, SkipNext } from '@mui/icons-material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -9,35 +9,52 @@ import CardMedia from '@mui/material/CardMedia';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { Box } from '@mui/material';
-import AppBarTop from './AppBarTop';
 import { useNavigate } from 'react-router-dom';
 import config from "../config.json"
 import axios from 'axios';
 
 export default function RandomProfile() {
   const navigate = useNavigate();
-  const [createError, setCreateError] = useState(false);
-    const [created, setCreated] = useState(false);
+  const [randomProfile, setRandomProfile] = useState(null);
+  const [error, setError] = useState(null);
   const goToChat = () => {
     navigate('/chat', { state: { data: 'example data' } });
   };
-  const handlegetRandomProfile = async (event) => {
-    event.preventDefault();
+
+  const handlegetRandomProfile = async () => {
     try {
-        const response = await axios.
+      const response = await axios.
         get(`${config.BACKEND_URL}/profiles/random`);
-        setCreated(true);
-        setCreateError(false);
-        console.log(response)
-    } catch (error) {
-        setCreateError(error);
-        setCreated(false)
-        console.error('Failed to Create AI profile', error);
+      console.log(response.status);
+      setRandomProfile(response.data);
+      setError(null);
     }
-};
+    catch (e) {
+      if (e.response) {
+        if (e.response.status === 404) {
+          setRandomProfile(null);
+          setError("No AI Profile Found for you. Go create some AI friends in Menu Options.");
+        } else {
+          setRandomProfile(null);
+          setError(`Error: ${e.response.status} - ${e.response.statusText}`);
+        }
+      }
+      else if (e.request) {
+        // Handle errors with the request itself
+        setRandomProfile(null);
+        setError("No response received from server.");
+      } 
+    }
+  };
+
+  useEffect(() => {
+    handlegetRandomProfile();
+  }, []);
+
+
   return (
     <>
-      <Box sx={{ width: "80%", maxWidth: 512}}>
+      {randomProfile && (<Box sx={{ width: "80%", maxWidth: 512 }}>
         <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between' }}>
           <IconButton aria-label="add to favorites" sx={{ color: 'red' }}>
             <FavoriteIcon />
@@ -54,25 +71,31 @@ export default function RandomProfile() {
         }}>
           <CardMedia
             component="img"
-            image="https://picsum.photos/512"
+            image={randomProfile.imageUrls}
             alt="Image not available"
             sx={{
             }}
           />
-          <CardHeader title="Foo Bar" subheader="age" />
+          <CardHeader title={`${randomProfile.firstName} ${randomProfile.lastName}`} subheader={randomProfile.age} />
           <CardContent>
             <Typography variant="body2" color="text.secondary">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-              pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa
-              qui officia deserunt mollit anim id est laborum.
+              {randomProfile.bio}
             </Typography>
           </CardContent>
         </Card>
-      </Box>
+      </Box>)}
+
+      {error && (<Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between' }}>
+        <Card sx={{
+          mt: 1,
+        }}>
+          <CardContent>
+            <Typography variant="body2" color="text.secondary">
+              {error}
+            </Typography>
+          </CardContent>
+        </Card>
+      </Box>)}
     </>
   );
 }

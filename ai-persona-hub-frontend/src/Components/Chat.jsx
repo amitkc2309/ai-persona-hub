@@ -83,7 +83,7 @@ export default function Chat() {
                         <div ref={messagesEndRef} />
                     </List>
                 </Paper>
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: 4,}}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 4, mb: 4}}>
                     <TextField
                         fullWidth
                         variant="outlined"
