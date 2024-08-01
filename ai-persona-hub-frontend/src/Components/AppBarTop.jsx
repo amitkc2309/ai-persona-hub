@@ -52,7 +52,6 @@ function AppBarTop() {
       <AppBar position="static" sx={{ backgroundColor: theme => theme.palette.primary.main }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', }}>
               <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1, color: 'gold' }} />
               <Typography
                 variant="subtitle1"
@@ -65,13 +64,12 @@ function AppBarTop() {
                   fontFamily: 'monospace',
                   fontWeight: 700,
                   letterSpacing: '.3rem',
-                  color: 'inherit',
+                  color: 'gold',
                   textDecoration: 'none',
                 }}
               >
                 Ai-Persona-Hub
               </Typography>
-            </Box>
 
 
             <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -109,8 +107,6 @@ function AppBarTop() {
               </Menu>
             </Box>
 
-
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', }}>
               <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1, color: 'gold' }} />
               <Typography
                 variant="subtitle1"
@@ -124,13 +120,12 @@ function AppBarTop() {
                   fontFamily: 'monospace',
                   fontWeight: 700,
                   letterSpacing: '.3rem',
-                  color: 'inherit',
+                  color: 'gold',
                   textDecoration: 'none',
                 }}
               >
                 Ai-Persona-Hub
               </Typography>
-            </Box>
 
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
               {pages.map((page) => (
