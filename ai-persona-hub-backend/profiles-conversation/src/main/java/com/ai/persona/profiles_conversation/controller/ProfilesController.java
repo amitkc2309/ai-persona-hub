@@ -3,6 +3,8 @@ package com.ai.persona.profiles_conversation.controller;
 import com.ai.persona.profiles_conversation.constants.Gender;
 import com.ai.persona.profiles_conversation.dto.ProfileDto;
 import com.ai.persona.profiles_conversation.dto.ProfileMatching;
+import com.ai.persona.profiles_conversation.entity.Profile;
+import com.ai.persona.profiles_conversation.exception.ResourceNotFoundException;
 import com.ai.persona.profiles_conversation.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.MalformedURLException;
@@ -59,6 +62,17 @@ public class ProfilesController {
                     ProfileDto profileDto = new ProfileDto();
                     BeanUtils.copyProperties(saved, profileDto);
                     return ResponseEntity.ok().body(profileDto);
+                });
+    }
+
+    @GetMapping("/all-bots")
+    public Flux<ResponseEntity<ProfileDto>> getAllBots() {
+        return profileService
+                .getAllBots()
+                .map(saved->{
+                    ProfileDto profileDto = new ProfileDto();
+                    BeanUtils.copyProperties(saved, profileDto);
+                    return ResponseEntity.ok(profileDto);
                 });
     }
 

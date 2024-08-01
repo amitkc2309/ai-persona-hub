@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -212,5 +213,11 @@ public class ProfileService {
                                             .then(Mono.just(profile1));
                                 })
                 );
+    }
+
+    public Flux<Profile> getAllBots() {
+        return profileRepository
+                .findAllBots()
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException("profile1", "AI Bots")));
     }
 }
