@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Card, CardContent, CardHeader, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
+import { Avatar, Box, Button, Card, CardContent, CardHeader, CircularProgress, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useState } from "react";
 import config from "../config.json"
@@ -9,9 +9,13 @@ export default function GenerateAIProfile() {
     const [createError, setCreateError] = useState(false);
     const [created, setCreated] = useState(false);
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [generatedProfile, setGeneratedProfile] = useState(null);
 
     const handleCreateAIProfile = async (event) => {
         event.preventDefault();
+        setGeneratedProfile(null);
+        setCreated(false);
         const data = new FormData(event.currentTarget);
         const payload = {
             gender: data.get('gender'),
@@ -19,14 +23,19 @@ export default function GenerateAIProfile() {
             ethnicity: data.get('ethnicity'),
         };
         try {
-            const response=await axios.
-            post(`${config.BACKEND_URL}/profiles/generate-random`,payload);
+            const response = await axios.
+                post(`${config.BACKEND_URL}/profiles/generate-random`, payload);
+            setGeneratedProfile(response.data);
             setCreated(true);
             setCreateError(false);
         } catch (e) {
+            setGeneratedProfile(null);
             setCreateError(true);
             setCreated(false)
             console.error('Failed to Create AI profile', e);
+        }
+        finally {
+            setLoading(false);
         }
     };
 
@@ -49,55 +58,65 @@ export default function GenerateAIProfile() {
     return (
         <>
             <Box sx={{ width: "80%", maxWidth: 512, display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                        <AutoAwesomeIcon />
-                    </Avatar>
-                    <Typography component="h1" variant="h5">
-                        Generate AI Friends
-                    </Typography>
-                </Box>
-                <Box component="form" onSubmit={handleCreateAIProfile} noValidate sx={{ mt: 1, }} >
-                    <InputLabel id="gender-label">Gender</InputLabel>
-                    <Select labelId="gender-label" name="gender" fullWidth autoFocus defaultValue="FEMALE">
-                        <MenuItem value="FEMALE">Female</MenuItem>
-                        <MenuItem value="MALE">Male</MenuItem>
-                        <MenuItem value="TRANS">Other</MenuItem>
-                    </Select>
-                    <TextField label="Age" name="age" fullWidth margin="normal"
-                        type="number" inputProps={{ min: 18, max: 100, }} helperText={ageError} error={!!ageError} onChange={handleAgeChange}
-                    />
-                    <InputLabel id="ethnicity-label">Ethnicity</InputLabel>
-                    <Select labelId="ethnicity-label" name="ethnicity" fullWidth autoFocus defaultValue="Indian">
-                        <MenuItem value="Indian">Indian</MenuItem>
-                        <MenuItem value="White">White</MenuItem>
-                        <MenuItem value="European">European</MenuItem>
-                        <MenuItem value="Asian">Asian</MenuItem>
-                        <MenuItem value="Hispanic">Hispanic</MenuItem>
-                        <MenuItem value="African">African</MenuItem>
-                        <MenuItem value="Alien">Alien</MenuItem>
-                    </Select>
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="info"
-                        disabled={isButtonDisabled}
-                        sx={{ mt: 3, mb: 2, }}
-                    >
-                        Create a Friend
-                    </Button>
-                </Box>
-                { createError &&
+                {!loading && (<Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                            <AutoAwesomeIcon />
+                        </Avatar>
+                        <Typography component="h1" variant="h5">
+                            Generate AI Friends
+                        </Typography>
+                    </Box>
+                    <Box component="form" onSubmit={handleCreateAIProfile} noValidate sx={{ mt: 1, }} >
+                        <InputLabel id="gender-label">Gender</InputLabel>
+                        <Select labelId="gender-label" name="gender" fullWidth autoFocus defaultValue="FEMALE">
+                            <MenuItem value="FEMALE">Female</MenuItem>
+                            <MenuItem value="MALE">Male</MenuItem>
+                            <MenuItem value="TRANS">Other</MenuItem>
+                        </Select>
+                        <TextField label="Age" name="age" fullWidth margin="normal"
+                            type="number" inputProps={{ min: 18, max: 100, }} helperText={ageError} error={!!ageError} onChange={handleAgeChange}
+                        />
+                        <InputLabel id="ethnicity-label">Ethnicity</InputLabel>
+                        <Select labelId="ethnicity-label" name="ethnicity" fullWidth autoFocus defaultValue="Indian">
+                            <MenuItem value="Indian">Indian</MenuItem>
+                            <MenuItem value="White">White</MenuItem>
+                            <MenuItem value="European">European</MenuItem>
+                            <MenuItem value="Asian">Asian</MenuItem>
+                            <MenuItem value="Hispanic">Hispanic</MenuItem>
+                            <MenuItem value="African">African</MenuItem>
+                            <MenuItem value="Alien">Alien</MenuItem>
+                            <MenuItem value="Alien">Cartoon</MenuItem>
+                            <MenuItem value="Alien">Anime</MenuItem>
+                        </Select>
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            color="info"
+                            disabled={isButtonDisabled}
+                            sx={{ mt: 3, mb: 2, }}
+                        >
+                            Create a Friend
+                        </Button>
+                    </Box>
+                </Box>)}
+                {loading && <CircularProgress sx={{ color: theme => theme.palette.primary.main, mt: 5 }} />}
+                {createError &&
                     (<Typography color="error">
-                        AI Profile Creation failed. Please Try after sommetimes...
+                        AI Profile Creation failed. Please Try after sometimes...
                     </Typography>)
                 }
-                { created &&
-                    (<Typography sx={{fontWeight: 'bold', color: 'success.main'}}>
+                {created &&
+                    (<Typography sx={{ fontWeight: 'bold', color: 'success.main' }}>
                         AI profile creation request has been sent to our systems. It can take upto 2 minutes.
                     </Typography>)
                 }
+                {generatedProfile && (<CardContent>
+                    <Typography variant="body2" color="text.secondary">
+                        {generatedProfile}
+                    </Typography>
+                </CardContent>)}
                 <CardContent>
                     <Typography variant="body2" color="text.secondary">
                         Create AI friends tailored to your preferences. Once generated, they will be added to your friends list,

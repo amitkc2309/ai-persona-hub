@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import { Chat, SkipNext } from '@mui/icons-material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -8,7 +8,7 @@ import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { Box } from '@mui/material';
+import { Box, CircularProgress, LinearProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import config from "../config.json"
 import axios from 'axios';
@@ -17,13 +17,18 @@ export default function RandomProfile() {
   const navigate = useNavigate();
   const [randomProfile, setRandomProfile] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const goToChat = () => {
     navigate('/chat', { state: { data: 'example data' } });
   };
 
   const handlegetRandomProfile = async () => {
+    setRandomProfile(null);
+    setLoading(true);
+
     try {
-      const response = await axios.
+      var response = await axios.
         get(`${config.BACKEND_URL}/profiles/random`);
       console.log(response.status);
       setRandomProfile(response.data);
@@ -43,14 +48,16 @@ export default function RandomProfile() {
         // Handle errors with the request itself
         setRandomProfile(null);
         setError("No response received from server.");
-      } 
+      }
+    }
+    finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     handlegetRandomProfile();
   }, []);
-
 
   return (
     <>
@@ -85,7 +92,7 @@ export default function RandomProfile() {
           </CardContent>
         </Card>
       </Box>)}
-
+      {loading && <CircularProgress sx={{ color: theme => theme.palette.primary.main, mt:5}} />}
       {error && (<Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between' }}>
         <Card sx={{
           mt: 1,
