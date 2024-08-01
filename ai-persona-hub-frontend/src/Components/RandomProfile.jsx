@@ -15,11 +15,9 @@ import config from "../config.json"
 import axios from 'axios';
 
 export default function RandomProfile() {
-  const [expanded, setExpanded] = React.useState(false);
   const navigate = useNavigate();
   const [createError, setCreateError] = useState(false);
     const [created, setCreated] = useState(false);
-    const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const goToChat = () => {
     navigate('/chat', { state: { data: 'example data' } });
   };

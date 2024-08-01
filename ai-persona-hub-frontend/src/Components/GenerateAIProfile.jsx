@@ -48,7 +48,7 @@ export default function GenerateAIProfile() {
 
     return (
         <>
-            <Box sx={{ width: 512, display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ width: "80%", maxWidth: 512, display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
                     <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
                         <AutoAwesomeIcon />
