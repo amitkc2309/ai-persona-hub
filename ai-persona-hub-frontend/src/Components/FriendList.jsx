@@ -97,8 +97,9 @@ export default function FriendList() {
 
     return (
         <React.Fragment>
+            <Box sx={{ width: "80%", maxWidth: 650 }}>
             <Paper square sx={{
-                width: '80%', display: 'flex',
+                display: 'flex',
                 flexDirection: 'column', mt: 1,
                 overflowY: 'auto',
                 maxHeight: '80vh',
@@ -122,7 +123,8 @@ export default function FriendList() {
                                             <Avatar alt="Profile Picture" src={person} />
                                         </ListItemAvatar>
                                         <ListItemText primary={primary}
-                                            secondary={secondary.length > 50 ? `${secondary.slice(0, 300)} ...` : secondary} />
+                                            secondary={secondary.length > 50 ? `${secondary.slice(0, 150)} ...` : secondary} 
+                                            sx={{ml:2}}/>
                                         <Box
                                             className="chat-icon"
                                             sx={{
@@ -146,6 +148,7 @@ export default function FriendList() {
                     ))}
                 </List>
             </Paper>
+            </Box>
         </React.Fragment>
     );
 }
