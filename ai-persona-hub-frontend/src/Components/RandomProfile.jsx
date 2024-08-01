@@ -39,7 +39,7 @@ export default function RandomProfile() {
 };
   return (
     <>
-      <Box sx={{ width: "80%", maxWidth: 650}}>
+      <Box sx={{ width: "80%", maxWidth: 512}}>
         <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between' }}>
           <IconButton aria-label="add to favorites" sx={{ color: 'red' }}>
             <FavoriteIcon />
@@ -56,9 +56,10 @@ export default function RandomProfile() {
         }}>
           <CardMedia
             component="img"
-            height="194"
-            image="https://picsum.photos/200"
+            image="https://picsum.photos/512"
             alt="Image not available"
+            sx={{
+            }}
           />
           <CardHeader title="Foo Bar" subheader="age" />
           <CardContent>
