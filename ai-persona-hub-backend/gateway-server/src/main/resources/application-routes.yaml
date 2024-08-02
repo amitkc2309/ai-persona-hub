@@ -1,0 +1,23 @@
+#spring:
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: frontend
+#          uri: http://localhost:5173/
+#          predicates:
+#            - Path=/
+#            - Path=/*.css
+#            - Path=/*.js
+#            - Path=/favicon.ico
+#            - Path=/static/**
+#            - Path=/static/css/**
+#            - Path=/static/js/**
+#            - Path=/manifest.json
+#            - Path=/*.png
+#            - Path=/*.PNG
+#        - id: PROFILES-CONVERSATION
+#          uri: lb://PROFILES-CONVERSATION
+#          predicates:
+#            - Path=/profiles/**
+#          filters:
+#            - TokenRelay

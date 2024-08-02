@@ -6,14 +6,9 @@ x-base_service: &base_service
       - &v2 ./output:/output
     stop_signal: SIGKILL
     tty: true
-    deploy:
-      resources:
-        reservations:
-          devices:
-              - driver: nvidia
-                capabilities: [compute, utility, gpu]
 
-name: webui-docker
+name: ai-persona-hub-docker
+
 
 services:
   download:
@@ -26,15 +21,22 @@ services:
     <<: *base_service
     profiles: ["auto"]
     build: ./services/AUTOMATIC1111
-    image: stable-diffusiaon-automatic1111 # this images will be created once build has been run
-    container_name: automatic1111-container
+    image: ai-persona-stable-diffusion # this images will be created once build has been run
+    container_name: ai-persona-stable-diffusion-gpu
     environment:
       - CLI_ARGS=--allow-code --medvram --xformers --enable-insecure-extension-access --api
-      
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities:
+                - gpu
   auto-cpu:
     <<: *automatic
     profiles: ["auto-cpu"]
     deploy: {}
-    container_name: automatic1111-cpu-container
+    container_name: ai-persona-stable-diffusion-cpu
     environment:
       - CLI_ARGS=--no-half --precision full --allow-code --enable-insecure-extension-access --api

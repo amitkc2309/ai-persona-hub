@@ -6,6 +6,8 @@
 docker-compose -f docker-compose.yaml up -d
 ----------
 ----------
+https://developer.nvidia.com/cuda-12-1-0-download-archive
+---------
 Ollama Docker setup->
 https://github.com/lgdd/chatollama
 
@@ -26,6 +28,8 @@ To Run on GPU
   
 5. To test if Docker is able to connect to Nvidia driver or not-
 docker run --runtime nvidia --rm nvidia/cuda:12.5.1-base-ubuntu24.04 nvidia-smi
+docker run --runtime nvidia --rm nvidia/cuda:12.1.0-base-ubuntu22.04 nvidia-smi
+docker run --runtime nvidia --rm pytorch/pytorch:2.3.0-cuda12.1-cudnn8-runtime nvidia-smi
 Note:  cuda tag in above command must match with CUDA version Of your system. Search for tag (12.5.1) on Nvidia/CUDA Docker hub page and 
 find correct tag.
 
@@ -46,17 +50,19 @@ https://github.com/AbdBarho/stable-diffusion-webui-docker
 API-Docs->https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/API
 
 Go inside ai-persona-hub-docker/stability-ai folder
-1. docker compose --profile download up --build -d  --> Run only once in a system
+1. docker compose --profile download up --build -d  --> Run only once in a system because it downloads shit everytime (14GB)
 Important: wait until its done, then only run below. Check logs of webui-docker-download container to see completion is done or not. Once its done then webui-docker-download containers will be stopped. It will take time.
 
-2. docker compose --profile auto-cpu up --build -d
+2. docker compose --profile auto-cpu up --build -d --> Run only once in a system because it downloads shit everytime (14GB)
 or 
 GPU-BASED->
-docker compose --profile auto up --build -d
+docker compose --profile auto up --build -d --> Run only once in a system because it downloads shit everytime (14GB)
+
+Run this everytime instead->
+docker start ai-persona-stable-diffusion-cpu
+docker start ai-persona-stable-diffusion-gpu
 
 Note: data folder is  generated
-
-
 
 
 Note : If you face error: ': No such file or directory't execute 'bash while running docker compose command on stability-ai folder 
