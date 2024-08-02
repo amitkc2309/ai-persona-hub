@@ -3,6 +3,7 @@ package com.ai.persona.profiles_conversation.controller;
 import com.ai.persona.profiles_conversation.constants.Gender;
 import com.ai.persona.profiles_conversation.dto.ProfileDto;
 import com.ai.persona.profiles_conversation.dto.ProfileMatching;
+import com.ai.persona.profiles_conversation.dto.RandomProfileInputDto;
 import com.ai.persona.profiles_conversation.entity.Profile;
 import com.ai.persona.profiles_conversation.exception.ResourceNotFoundException;
 import com.ai.persona.profiles_conversation.service.ProfileService;
@@ -112,10 +113,13 @@ public class ProfilesController {
     }
 
     @PostMapping("/generate-random")
-    public ResponseEntity<String> generateRandomBotProfile(@RequestParam(required = false) Gender gender,
-                                                           @RequestParam(required = false) Integer age,
-                                                           @RequestParam(required = false) String ethnicity
-    ) {
+    public ResponseEntity<String> generateRandomBotProfile(@RequestBody RandomProfileInputDto randomProfileInputDto) {
+        if (randomProfileInputDto == null) {
+            return ResponseEntity.badRequest().body("Invalid input");
+        }
+        Integer age = randomProfileInputDto.getAge();
+        String ethnicity = randomProfileInputDto.getEthnicity();
+        Gender gender = randomProfileInputDto.getGender();
         String response = profileService.generateRandomBotProfile(gender,age,ethnicity);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

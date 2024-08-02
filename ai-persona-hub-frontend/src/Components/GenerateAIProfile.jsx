@@ -79,16 +79,16 @@ export default function GenerateAIProfile() {
                             type="number" inputProps={{ min: 18, max: 100, }} helperText={ageError} error={!!ageError} onChange={handleAgeChange}
                         />
                         <InputLabel id="ethnicity-label">Ethnicity</InputLabel>
-                        <Select labelId="ethnicity-label" name="ethnicity" fullWidth autoFocus defaultValue="Indian">
-                            <MenuItem value="Indian">Indian</MenuItem>
+                        <Select labelId="ethnicity-label" name="ethnicity" fullWidth autoFocus defaultValue="White">
                             <MenuItem value="White">White</MenuItem>
+                            <MenuItem value="Indian">Indian</MenuItem>
                             <MenuItem value="European">European</MenuItem>
                             <MenuItem value="Asian">Asian</MenuItem>
                             <MenuItem value="Hispanic">Hispanic</MenuItem>
                             <MenuItem value="African">African</MenuItem>
                             <MenuItem value="Alien">Alien</MenuItem>
-                            <MenuItem value="Alien">Cartoon</MenuItem>
-                            <MenuItem value="Alien">Anime</MenuItem>
+                            <MenuItem value="Cartoon">Cartoon</MenuItem>
+                            <MenuItem value="Anime">Anime</MenuItem>
                         </Select>
                         {!loading && (<Button
                             type="submit"
@@ -135,6 +135,13 @@ export default function GenerateAIProfile() {
                                     color: theme => theme.palette.primary.main
                                 }}>
                                     {generatedProfile}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary" sx={{
+                                    fontWeight: 'bold',
+                                    mt:1,
+                                }}>
+                                    Note: We are generating profile image as well which may take a while 
+                                    depending on AI molel's computing resources.
                                 </Typography>
                             </CardContent>
                         </Card>

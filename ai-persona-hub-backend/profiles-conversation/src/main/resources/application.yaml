@@ -22,7 +22,7 @@ image:
   dir: /generated-images
 stability:
   ai: http://localhost:7860/sdapi/v1/txt2img
-  quality: 2 # Higher value is good. Up to 50
+  quality: 30 # Higher value is good. Up to 50
 
 
 #logging:

@@ -20,11 +20,8 @@ services:
     image: amitking2309/ai-persona-discovery-server
     ports:
       - "8761:8761"
-    environment:
-      - THC_PATH=/actuator/health
-      - THC_PORT=8081
     healthcheck:
-      test:  [ "CMD", "/cnb/process/health-check" ]
+      test: "curl --fail --silent localhost:8761/actuator/health/readiness | grep UP || exit 1"
       interval: 30s
       timeout: 10s
       retries: 4
@@ -50,8 +47,8 @@ services:
     volumes:
       - ./images-data:/images
     depends_on:
-      #ai-persona-discovery-server:
-        #condition: service_healthy
+      ai-persona-discovery-server:
+        condition: service_healthy
       ai-persona-mongo:
         condition: service_healthy
     networks:

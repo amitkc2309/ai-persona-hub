@@ -81,9 +81,9 @@ public class ProfileService {
         Gender randomGender = gender != null ? gender : CommonUtility.getRandomGender();
         String personalityType = CommonUtility.getPersonalityTypes();
         String randomEthnicity = ethnicity != null ? ethnicity : CommonUtility.getRandomEthnicity();
-        String prompt = "Create a Tinder profile persona of an personality Type " + personalityType +
+        String prompt = "Create a online profile persona of an personality Type " + personalityType +
                 " " + +randomAge + " year old " + randomEthnicity + " " + randomGender.toString() + " "
-                + " including the first name, last name, email, myersBriggsPersonalityType and bio. " +
+                + " including the first name, last name, myersBriggsPersonalityType and bio. " +
                 "Save the generated profile by calling saveGeneratedProfile function";
         log.info("prompt to create profile: " + prompt);
         UserMessage userMessage = new UserMessage(prompt);
