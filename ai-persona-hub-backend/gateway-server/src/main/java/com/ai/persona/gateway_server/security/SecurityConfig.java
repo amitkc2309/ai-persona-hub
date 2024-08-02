@@ -2,6 +2,7 @@ package com.ai.persona.gateway_server.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -15,47 +16,33 @@ import org.springframework.security.web.server.authentication.logout.ServerLogou
 import org.springframework.security.web.server.authentication.logout.WebSessionServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
 import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.reactive.config.CorsRegistry;
+import org.springframework.web.reactive.config.WebFluxConfigurer;
 
-//@Configuration
-//@EnableWebFluxSecurity
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+@Configuration
 public class SecurityConfig {
-//    @Bean
-//    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity serverHttpSecurity,
-//                                                         ReactiveClientRegistrationRepository clientRegistrationRepository) {
-//        return serverHttpSecurity
-//                .authorizeExchange(exchange -> exchange
-////                        .pathMatchers("/actuator/**").permitAll()
-////                        .pathMatchers(
-////                                "/*.css", "/*.js", "/favicon.ico", "/static/**", "/static/css/**"
-////                                , "/static/js/**", "/manifest.json", "/*.png", "/*.PNG").permitAll()
-//                        .anyExchange().authenticated())
-//                .exceptionHandling(exceptionHandlingSpec ->
-//                        exceptionHandlingSpec
-//                                .authenticationEntryPoint(new RedirectServerAuthenticationEntryPoint("/"))
-//                )
-//                .oauth2Login(Customizer.withDefaults())
-//                .logout(logout -> logout
-//                        // logout
-//                        .logoutHandler(logoutHandler())
-//                        //logout at keycloak as well
-//                        .logoutSuccessHandler(keyCloakLogoutHandler(clientRegistrationRepository)))
-//                //CSRF not working because keycloak is not accepting CSRF header
-//                /*.csrf(csrf -> csrf.csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse())
-//                        .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()))*/
-//                .csrf(ServerHttpSecurity.CsrfSpec::disable)
-//                .build();
-//    }
-//
-//    private ServerLogoutHandler logoutHandler() {
-//        return new DelegatingServerLogoutHandler(
-//                new WebSessionServerLogoutHandler(),
-//                new CsrfServerLogoutHandler(CookieServerCsrfTokenRepository.withHttpOnlyFalse())
-//        );
-//    }
-//
-//    private ServerLogoutSuccessHandler keyCloakLogoutHandler(ReactiveClientRegistrationRepository clientRegistrationRepository) {
-//        var oidcLogoutSuccessHandler = new OidcClientInitiatedServerLogoutSuccessHandler(clientRegistrationRepository);
-//        oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
-//        return oidcLogoutSuccessHandler;
-//    }
+    @Bean
+    public SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
+        return http.cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(Collections.singletonList("*"));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"));
+                    config.setAllowedHeaders(List.of("*"));
+                    return config;
+                }))
+                .authorizeExchange(exchange ->
+                        exchange.pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .pathMatchers( "/*.css", "/*.js", "/favicon.ico", "/static/**", "/static/css/**"
+                                        , "/static/js/**", "/manifest.json", "/*.png", "/*.PNG").permitAll()
+                                .pathMatchers("/actuator/health/**").permitAll()
+                                .anyExchange().authenticated())
+                .oauth2Login(Customizer.withDefaults())
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .build();
+    }
 }

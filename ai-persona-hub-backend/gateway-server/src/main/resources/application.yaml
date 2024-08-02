@@ -10,36 +10,28 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: false # automatic routing enable/disabled
-          lowerCaseServiceId: true # this is important
-      #Gateway to wait for services
+          enabled: false
+          lowerCaseServiceId: true
       httpclient:
         connect-timeout: 1000
         response-timeout: 10s
 
-#      default-filters:
-#        - SaveSession #instruct Spring Cloud Gateway to always save the web session before forwarding requests downstream.
+      default-filters:
+        - SaveSession #instruct Spring Cloud Gateway to always save the web session before forwarding requests downstream.
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+        - AddResponseHeader=Access-Control-Allow-Origin, *
 
       routes:
         - id: profiles-conversation
-          uri: http://localhost:8081
+          uri: lb://profiles-conversation
           predicates:
-            - Path=/profiles/{segment}
+            - Path=/profiles/**, /conversation/**
           filters:
             - TokenRelay
         - id: frontend
-          uri: http://localhost:5173/
+          uri: http://${FRONTEND_IP}:5173/
           predicates:
-            - Path=/
-            - Path=/*.css
-            - Path=/*.js
-            - Path=/favicon.ico
-            - Path=/static/**
-            - Path=/static/css/**
-            - Path=/static/js/**
-            - Path=/manifest.json
-            - Path=/*.png
-            - Path=/*.PNG
+            - Path=/**
 
   # connect to redis
   data:
@@ -65,6 +57,7 @@ spring:
             client-id: ai-persona-hub-auth-code-grant
             client-secret: TlLtZyrPPmoLIGcXEjfbyBd1gQDDYd3o
             scope: openid,email,profile,roles
+#            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
         provider:
           keycloak:
             issuer-uri: "http://localhost:7080/realms/ai-persona-hub"

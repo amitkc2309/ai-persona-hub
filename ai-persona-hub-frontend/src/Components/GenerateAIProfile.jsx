@@ -25,7 +25,7 @@ export default function GenerateAIProfile() {
         };
         try {
             const response = await axios.
-                post(`${config.BACKEND_URL}/profiles/generate-random`, payload);
+                post(`/profiles/generate-random`, payload);
             setGeneratedProfile(response.data);
             setCreated(true);
             setCreateError(false);

@@ -29,7 +29,7 @@ export default function RandomProfile() {
 
     try {
       var response = await axios.
-        get(`${config.BACKEND_URL}/profiles/random`);
+        get(`/profiles/random`);
       console.log(response.status);
       setRandomProfile(response.data);
       setError(null);
