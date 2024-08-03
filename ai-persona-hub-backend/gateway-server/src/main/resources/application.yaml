@@ -18,8 +18,8 @@ spring:
 
       default-filters:
         - SaveSession #instruct Spring Cloud Gateway to always save the web session before forwarding requests downstream.
-        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
-        - AddResponseHeader=Access-Control-Allow-Origin, *
+#        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+#        - AddResponseHeader=Access-Control-Allow-Origin, *
 
       routes:
         - id: profiles-conversation
@@ -29,7 +29,7 @@ spring:
           filters:
             - TokenRelay
         - id: frontend
-          uri: http://${FRONTEND_IP}:5173/
+          uri: ${front_end.url}
           predicates:
             - Path=/**
 
@@ -54,17 +54,19 @@ spring:
       client:
         registration:
           keycloak:
+            provider: keycloak
             client-id: ai-persona-hub-auth-code-grant
             client-secret: TlLtZyrPPmoLIGcXEjfbyBd1gQDDYd3o
             scope: openid,email,profile,roles
-#            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
         provider:
           keycloak:
             issuer-uri: "http://localhost:7080/realms/ai-persona-hub"
 
 #frontEnd
 front_end:
-  url: http://localhost:5173
+  url: http://192.168.1.53:5173
 
 #Actuator with readiness and liveness
 management:

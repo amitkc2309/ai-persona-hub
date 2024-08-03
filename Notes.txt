@@ -165,3 +165,6 @@ follow-> https://github.com/jangaraj/keycloak-cors-issue-debugging
 https://stackoverflow.com/questions/74277464/keycloak-not-adding-allowed-origins-to-access-control-allow-origin-header-when
 
 see->I've found out that if you've disabled the "Full scope allowed" for your KC client
+
+------------
+https://developers.redhat.com/articles/2023/07/24/how-integrate-spring-boot-3-spring-security-and-keycloak#define_the_keycloak_integration
