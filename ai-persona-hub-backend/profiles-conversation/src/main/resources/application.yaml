@@ -9,6 +9,12 @@ spring:
       host: localhost
       port: 27017
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "http://localhost:7080/realms/ai-persona-hub/protocol/openid-connect/certs"
+
   #Ollama
   ai:
     ollama:
@@ -17,6 +23,8 @@ spring:
         options:
           temperature: 0.7
           model: mistral
+
+keycloak_url: http://localhost:7080
 
 image:
   dir: /generated-images
