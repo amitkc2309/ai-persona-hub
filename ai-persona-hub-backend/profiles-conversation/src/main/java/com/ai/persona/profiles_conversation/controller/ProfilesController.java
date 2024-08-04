@@ -2,10 +2,8 @@ package com.ai.persona.profiles_conversation.controller;
 
 import com.ai.persona.profiles_conversation.constants.Gender;
 import com.ai.persona.profiles_conversation.dto.ProfileDto;
-import com.ai.persona.profiles_conversation.dto.ProfileMatching;
 import com.ai.persona.profiles_conversation.dto.RandomProfileInputDto;
 import com.ai.persona.profiles_conversation.entity.Profile;
-import com.ai.persona.profiles_conversation.exception.ResourceNotFoundException;
 import com.ai.persona.profiles_conversation.service.ProfileService;
 import com.ai.persona.profiles_conversation.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +15,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -61,12 +57,20 @@ public class ProfilesController {
 
     @GetMapping("/random")
     public Mono<ResponseEntity<ProfileDto>> getRandomSavedProfileByGender(@RequestParam(required = false) String gender) {
+        String username = SecurityUtils.getUsername();
         return profileService
                 .getRandomSavedBotProfileByGender(gender)
-                .map(saved -> {
+                .flatMap(random -> {
                     ProfileDto profileDto = new ProfileDto();
-                    BeanUtils.copyProperties(saved, profileDto);
-                    return ResponseEntity.ok().body(profileDto);
+                    BeanUtils.copyProperties(random, profileDto);
+                    return profileService.getProfileByUsername(username)
+                            .map(user -> {
+                                if (user.getMatchedProfiles().contains(profileDto.getId()))
+                                    profileDto.setIsMatched(Boolean.TRUE);
+                                else
+                                    profileDto.setIsMatched(Boolean.FALSE);
+                                return ResponseEntity.ok().body(profileDto);
+                            });
                 });
     }
 
@@ -181,10 +185,14 @@ public class ProfilesController {
     }
 
     @PutMapping("/match/{matchedId}")
-    public Mono<ResponseEntity<Void>> addMatchedProfile(@PathVariable String matchedId) {
+    public Mono<ResponseEntity<ProfileDto>> addMatchedProfile(@PathVariable String matchedId) {
         return profileService
-                .addMatchedProfileToUSer(matchedId)
-                .then(Mono.just(ResponseEntity.ok().<Void>build()));
+                .addMatchedProfileToUser(matchedId)
+                .map(updatedUser->{
+                    ProfileDto profileDto = new ProfileDto();
+                    BeanUtils.copyProperties(updatedUser, profileDto);
+                    return ResponseEntity.ok(profileDto);
+                });
     }
 
     @DeleteMapping(("/{profileId}"))

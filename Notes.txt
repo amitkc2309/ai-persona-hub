@@ -125,6 +125,7 @@ create-react-app is not recommended anymore so use vite to create react-app
 10. npm install lucide-react  --> optional to get icons
 11. npm install react-router-dom
 12. npm install axios
+13. npm install js-cookie
 
 to expose as network service with ip=>
 npm run dev -- --host

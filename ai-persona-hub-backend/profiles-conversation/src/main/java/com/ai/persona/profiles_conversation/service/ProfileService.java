@@ -32,7 +32,6 @@ import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -194,7 +193,7 @@ public class ProfileService {
                 .flatMap(saved -> profileRepository.deleteById(profileId));
     }
 
-    public Mono<Profile> addMatchedProfileToUSer(String matchedId) {
+    public Mono<Profile> addMatchedProfileToUser(String matchedId) {
         String username = SecurityUtils.getUsername();
         return getProfileByUsername(username)
                 .switchIfEmpty(Mono.error(new ResourceNotFoundException("user", username)))

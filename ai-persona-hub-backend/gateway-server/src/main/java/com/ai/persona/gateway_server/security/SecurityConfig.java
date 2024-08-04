@@ -17,7 +17,10 @@ import org.springframework.security.web.server.authentication.logout.ServerLogou
 import org.springframework.security.web.server.authentication.logout.WebSessionServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
 import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
+import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.server.WebFilter;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,17 +44,13 @@ public class SecurityConfig {
                                         , "/static/js/**", "/manifest.json", "/*.png", "/*.PNG", "/*.ico").permitAll()
                                 .pathMatchers("/actuator/health/**").permitAll()
                                 .anyExchange().authenticated())
-//                .exceptionHandling(exceptionHandlingSpec ->
-//                        exceptionHandlingSpec
-//                                .authenticationEntryPoint(new RedirectServerAuthenticationEntryPoint("/"))
-//                )
                 .oauth2Login(Customizer.withDefaults())
                 .logout(logout -> logout
-//                        .logoutHandler(logoutHandler())
                         .logoutSuccessHandler(keyCloakLogoutHandler(clientRegistrationRepository)))
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                //.csrf(csrf -> csrf.csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse()))
+                //.csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .csrf(csrf -> csrf.csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse()))
                 .build();
+
     }
 
 
@@ -71,5 +70,17 @@ public class SecurityConfig {
         var oidcLogoutSuccessHandler = new OidcClientInitiatedServerLogoutSuccessHandler(clientRegistrationRepository);
         oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
         return oidcLogoutSuccessHandler;
+    }
+
+    @Bean
+    WebFilter csrfWebFilter() {
+        // Required because of https://github.com/spring-projects/spring-security/issues/5766
+        return (exchange, chain) -> {
+            exchange.getResponse().beforeCommit(() -> Mono.defer(() -> {
+                Mono<CsrfToken> csrfToken = exchange.getAttribute(CsrfToken.class.getName());
+                return csrfToken != null ? csrfToken.then() : Mono.empty();
+            }));
+            return chain.filter(exchange);
+        };
     }
 }

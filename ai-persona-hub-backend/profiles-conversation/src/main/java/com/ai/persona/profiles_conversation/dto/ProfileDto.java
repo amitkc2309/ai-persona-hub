@@ -18,6 +18,7 @@ public class ProfileDto{
         Gender gender;
         String bio;
         String imageUrls;
+        Boolean isMatched;
         String myersBriggsPersonalityType;
         Set<String> matchedProfiles;
 

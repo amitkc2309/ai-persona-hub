@@ -3,6 +3,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useState } from "react";
 import config from "../config.json"
 import axios from "axios";
+import Cookies from 'js-cookie';
 
 export default function GenerateAIProfile() {
     const [ageError, setAgeError] = useState('');
@@ -24,8 +25,18 @@ export default function GenerateAIProfile() {
             ethnicity: data.get('ethnicity'),
         };
         try {
+            const csrfToken=Cookies.get('XSRF-TOKEN');
+            console.log(csrfToken);
             const response = await axios.
-                post(`/profiles/generate-random`, payload);
+                post(`/profiles/generate-random`, payload,
+                    {
+                        headers: {
+                            'X-XSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                    }
+                );
             setGeneratedProfile(response.data);
             setCreated(true);
             setCreateError(false);

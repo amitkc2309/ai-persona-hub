@@ -12,6 +12,7 @@ import { Box, CircularProgress, LinearProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import config from "../config.json"
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 export default function RandomProfile() {
   const navigate = useNavigate();
@@ -27,11 +28,9 @@ export default function RandomProfile() {
   const handlegetRandomProfile = async () => {
     setRandomProfile(null);
     setLoading(true);
-
     try {
       var response = await axios.
         get(`/profiles/random`);
-      console.log(response.status);
       setRandomProfile(response.data);
       setError(null);
     }
@@ -58,7 +57,7 @@ export default function RandomProfile() {
 
   const addMatchedProfile = async (id) => {
     try {
-        var response = await axios.put(`/profiles/match/${id}`);
+        var updatedUser = await axios.put(`/profiles/match/${id}`);
         setMatched(true);
         setError(null);
     }
@@ -81,9 +80,9 @@ export default function RandomProfile() {
     <>
       {randomProfile && (<Box sx={{ width: "80%", maxWidth: 512 }}>
         <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between' }}>
-          <IconButton aria-label="add to favorites" onClick={() => addMatchedProfile(randomProfile.id)} sx={{ color: 'red' }}>
+          {!randomProfile.isMatched && (<IconButton aria-label="add to favorites" onClick={() => addMatchedProfile(randomProfile.id)} sx={{ color: 'red' }}>
             <FavoriteIcon />
-          </IconButton>
+          </IconButton>)}
           <IconButton aria-label="chat" onClick={goToChat} sx={{ color: theme => theme.palette.primary.main }}>
             <Chat />
           </IconButton>
