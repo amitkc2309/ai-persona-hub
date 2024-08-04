@@ -22,7 +22,7 @@ public class KeycloakRoleConverter implements Converter<Jwt, AbstractAuthenticat
                 .map(roleName -> "ROLE_" + roleName)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
-        return new JwtAuthenticationToken(jwt, authorities, "user");
+        return new JwtAuthenticationToken(jwt, authorities, jwt.getClaims().get("preferred_username").toString());
     }
 }
 

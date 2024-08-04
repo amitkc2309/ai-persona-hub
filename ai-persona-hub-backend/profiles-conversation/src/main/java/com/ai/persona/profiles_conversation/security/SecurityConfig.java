@@ -23,13 +23,12 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().hasRole("AI-PERSONA")
                 )
-                .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(
-                        jwt -> jwt.jwtAuthenticationConverter(keycloakRoleConverter)))
+                .oauth2ResourceServer(oauth2ResourceServer ->
+                        oauth2ResourceServer.jwt(jwt ->
+                                jwt.jwtAuthenticationConverter(keycloakRoleConverter)))
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
-
-
 }

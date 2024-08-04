@@ -87,8 +87,6 @@ export default function GenerateAIProfile() {
                             <MenuItem value="Hispanic">Hispanic</MenuItem>
                             <MenuItem value="African">African</MenuItem>
                             <MenuItem value="Alien">Alien</MenuItem>
-                            <MenuItem value="Cartoon">Cartoon</MenuItem>
-                            <MenuItem value="Anime">Anime</MenuItem>
                         </Select>
                         {!loading && (<Button
                             type="submit"

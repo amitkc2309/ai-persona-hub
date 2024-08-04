@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.HashSet;
+import java.util.UUID;
 import java.util.function.Function;
 
 /**
@@ -35,6 +36,7 @@ public class ProfileFunctions {
             profileDto.setIsBot(Boolean.TRUE);
             profileDto.setMatchedProfiles(new HashSet<>());
             profileDto.setImageUrls(null);
+            profileDto.setUsername(UUID.randomUUID().toString());
             log.info("*****saving profile "+profileDto.toString());
             return profileService
                     .saveProfile(profileDto)

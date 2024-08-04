@@ -7,6 +7,7 @@ import com.ai.persona.profiles_conversation.entity.Profile;
 import com.ai.persona.profiles_conversation.exception.ResourceNotFoundException;
 import com.ai.persona.profiles_conversation.repository.ProfileRepository;
 import com.ai.persona.profiles_conversation.utils.CommonUtility;
+import com.ai.persona.profiles_conversation.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -31,6 +32,7 @@ import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -57,14 +59,20 @@ public class ProfileService {
                 .switchIfEmpty(Mono.error(new ResourceNotFoundException("email", email)));
     }
 
-    public Mono<Profile> getRandomSavedProfileByGender(String gender) {
+    public Mono<Profile> getProfileByUsername(String username) {
+        return profileRepository
+                .findByUsername(username)
+                .switchIfEmpty(Mono.empty());
+    }
+
+    public Mono<Profile> getRandomSavedBotProfileByGender(String gender) {
         if (gender == null) {
             return profileRepository
-                    .getRandomProfile()
+                    .getRandomBotProfile()
                     .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", "-no gender specified")));
         } else {
             return profileRepository
-                    .getRandomProfileByGender(gender)
+                    .getRandomBotProfileByGender(gender)
                     .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", gender)));
         }
     }
@@ -81,9 +89,10 @@ public class ProfileService {
         Gender randomGender = gender != null ? gender : CommonUtility.getRandomGender();
         String personalityType = CommonUtility.getPersonalityTypes();
         String randomEthnicity = ethnicity != null ? ethnicity : CommonUtility.getRandomEthnicity();
-        String prompt = "Create a online profile persona of an personality Type " + personalityType +
-                " " + +randomAge + " year old " + randomEthnicity + " " + randomGender.toString() + " "
-                + " including the first name, last name, myersBriggsPersonalityType and bio. " +
+        String prompt =
+                "Create a online profile persona of a " + randomAge +" years old"+
+                " with personality Type " + personalityType + ",ethnicity as " + randomEthnicity +" and gender as "+randomGender
+                + ",including the first name, last name, myersBriggsPersonalityType and bio. " +
                 "Save the generated profile by calling saveGeneratedProfile function";
         log.info("prompt to create profile: " + prompt);
         UserMessage userMessage = new UserMessage(prompt);
@@ -108,11 +117,11 @@ public class ProfileService {
         log.info("****STABILITY_AI="+ CommonConstants.getStabilityAi());
         log.info("****STABILITY_AI_QUALITY="+CommonConstants.getStabilityQuality());
         log.info("*******generating image for " + profile.toString());
-        String prompt = profile.getAge() + " years old, " + profile.getMyersBriggsPersonalityType() + " personality "
-                + profile.getEthnicity() + " " + profile.getGender() + " photo for tinder bio";
+        String prompt = "Photo for online bio of "+profile.getAge() +" year old," + profile.getEthnicity() +" "+
+                profile.getGender()+" with personality Type " + profile.getMyersBriggsPersonalityType();
         log.info("*******prompt for generating image " + prompt);
         String negativePrompt = "multiple faces, lowres, text, error, cropped, worst quality, low quality, " +
-                "jpeg artifacts, ugly, duplicate, morbid, mutilated, out of frame, extra fingers, mutated hands, " +
+                "jpeg artifacts, ugly,flat nose, duplicate, morbid, mutilated, out of frame, extra fingers, mutated hands, " +
                 "poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, " +
                 "bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, " +
                 "missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, " +
@@ -185,18 +194,18 @@ public class ProfileService {
                 .flatMap(saved -> profileRepository.deleteById(profileId));
     }
 
-    /**
-     * Add profileId1 match with profile2
-     *
-     * @param profileId1
-     * @param profileId2
-     * @return
-     */
+    public Mono<Profile> addMatchedProfileToUSer(String matchedId) {
+        String username = SecurityUtils.getUsername();
+        return getProfileByUsername(username)
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException("user", username)))
+                .flatMap(SavedUser-> this.addMatchedProfile(SavedUser.getId(),matchedId));
+
+    }
 
     public Mono<Profile> addMatchedProfile(String profileId1, String profileId2) {
         return profileRepository
                 .findById(profileId1)
-                .switchIfEmpty(Mono.error(new ResourceNotFoundException("profile1", profileId1)))
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException("user", profileId1)))
                 .flatMap(profile1 ->
                         profileRepository
                                 .findById(profileId2)
@@ -219,5 +228,14 @@ public class ProfileService {
         return profileRepository
                 .findAllBots()
                 .switchIfEmpty(Mono.error(new ResourceNotFoundException("profile1", "AI Bots")));
+    }
+
+    public Flux<Profile> getAllMatchedBots() {
+        String username = SecurityUtils.getUsername();
+        return getProfileByUsername(username)
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException("user", username)))
+                .flatMapMany(savedUser->
+                      profileRepository.findAllById(savedUser.getMatchedProfiles())
+                );
     }
 }

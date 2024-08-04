@@ -17,6 +17,7 @@ export default function RandomProfile() {
   const navigate = useNavigate();
   const [randomProfile, setRandomProfile] = useState(null);
   const [error, setError] = useState(null);
+  const [matched, setMatched] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const goToChat = () => {
@@ -55,6 +56,23 @@ export default function RandomProfile() {
     }
   };
 
+  const addMatchedProfile = async (id) => {
+    try {
+        var response = await axios.put(`/profiles/match/${id}`);
+        setMatched(true);
+        setError(null);
+    }
+    catch (e) {
+        if (e.response) {
+            setMatched(false);
+            setError("Error adding as a friend");
+           
+        }
+    }
+    finally {
+    }
+};
+
   useEffect(() => {
     handlegetRandomProfile();
   }, []);
@@ -63,7 +81,7 @@ export default function RandomProfile() {
     <>
       {randomProfile && (<Box sx={{ width: "80%", maxWidth: 512 }}>
         <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between' }}>
-          <IconButton aria-label="add to favorites" sx={{ color: 'red' }}>
+          <IconButton aria-label="add to favorites" onClick={() => addMatchedProfile(randomProfile.id)} sx={{ color: 'red' }}>
             <FavoriteIcon />
           </IconButton>
           <IconButton aria-label="chat" onClick={goToChat} sx={{ color: theme => theme.palette.primary.main }}>
@@ -76,14 +94,11 @@ export default function RandomProfile() {
         <Card sx={{
           mt: 1,
         }}>
-          <CardMedia
+          {randomProfile.imageUrls && (<CardMedia
             component="img"
-            // image={randomProfile.imageUrls}
-            image={`${config.BACKEND_URL}/profiles/image/${randomProfile.id}`}
             alt="Image not available"
-            sx={{
-            }}
-          />
+            image={`/profiles/image/${randomProfile.id}`}
+          />)}
           <CardHeader title={`${randomProfile.firstName} ${randomProfile.lastName}`} subheader={randomProfile.age} />
           <CardContent>
             <Typography variant="body2" color="text.secondary">
@@ -98,12 +113,16 @@ export default function RandomProfile() {
           mt: 1,
         }}>
           <CardContent>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="error">
               {error}
             </Typography>
           </CardContent>
         </Card>
       </Box>)}
+
+      {matched && (<Typography variant="body2" color="text.secondary">
+              Profile Added as a Friend
+      </Typography>)}
     </>
   );
 }

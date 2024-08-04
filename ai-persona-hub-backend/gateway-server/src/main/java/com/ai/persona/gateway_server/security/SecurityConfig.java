@@ -49,8 +49,8 @@ public class SecurityConfig {
                 .logout(logout -> logout
 //                        .logoutHandler(logoutHandler())
                         .logoutSuccessHandler(keyCloakLogoutHandler(clientRegistrationRepository)))
-                //.csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .csrf(csrf -> csrf.csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse()))
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                //.csrf(csrf -> csrf.csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse()))
                 .build();
     }
 

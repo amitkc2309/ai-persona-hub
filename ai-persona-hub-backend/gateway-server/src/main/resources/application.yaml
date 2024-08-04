@@ -14,7 +14,7 @@ spring:
           lowerCaseServiceId: true
       httpclient:
         connect-timeout: 1000
-        response-timeout: 10s
+        response-timeout: 20s
 
       default-filters:
         - SaveSession #instruct Spring Cloud Gateway to always save the web session before forwarding requests downstream.
@@ -28,6 +28,8 @@ spring:
             - Path=/profiles/**, /conversation/**
           filters:
             - TokenRelay
+          metadata:
+            response-timeout: -1
         - id: frontend
           uri: ${front_end.url}
           predicates:

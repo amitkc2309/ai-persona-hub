@@ -33,7 +33,7 @@ export default function FriendList() {
     const getAIFriends = async () => {
         try {
             var response = await axios.
-                get(`${config.BACKEND_URL}/profiles/all-bots`);
+                get(`/profiles/matched-bots`);
             const friendsData = response.data.map(friend => friend.body);
             setFriends(friendsData);
             console.log(response.data);
@@ -42,7 +42,7 @@ export default function FriendList() {
         catch (e) {
             if (e.response) {
                 if (e.response.status === 404) {
-                    setRandomProfile(null);
+                    setFriends(null);
                     setError("No AI Profile Found for you. Go create some AI friends in Menu Options.");
                 } else {
                     setFriends(null);

@@ -11,6 +11,7 @@ public class ProfileDto{
         Boolean isBot;
         String firstName;
         String lastName;
+        String username;
         String email;
         int age;
         String ethnicity;

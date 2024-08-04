@@ -7,6 +7,7 @@ import com.ai.persona.profiles_conversation.dto.RandomProfileInputDto;
 import com.ai.persona.profiles_conversation.entity.Profile;
 import com.ai.persona.profiles_conversation.exception.ResourceNotFoundException;
 import com.ai.persona.profiles_conversation.service.ProfileService;
+import com.ai.persona.profiles_conversation.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.beans.BeanUtils;
@@ -16,6 +17,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,6 +26,7 @@ import reactor.core.publisher.Mono;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 
 @RestController
 @RequestMapping("/profiles")
@@ -58,7 +62,7 @@ public class ProfilesController {
     @GetMapping("/random")
     public Mono<ResponseEntity<ProfileDto>> getRandomSavedProfileByGender(@RequestParam(required = false) String gender) {
         return profileService
-                .getRandomSavedProfileByGender(gender)
+                .getRandomSavedBotProfileByGender(gender)
                 .map(saved -> {
                     ProfileDto profileDto = new ProfileDto();
                     BeanUtils.copyProperties(saved, profileDto);
@@ -70,6 +74,17 @@ public class ProfilesController {
     public Flux<ResponseEntity<ProfileDto>> getAllBots() {
         return profileService
                 .getAllBots()
+                .map(saved->{
+                    ProfileDto profileDto = new ProfileDto();
+                    BeanUtils.copyProperties(saved, profileDto);
+                    return ResponseEntity.ok(profileDto);
+                });
+    }
+
+    @GetMapping("/matched-bots")
+    public Flux<ResponseEntity<ProfileDto>> getAllMatchedBots() {
+        return profileService
+                .getAllMatchedBots()
                 .map(saved->{
                     ProfileDto profileDto = new ProfileDto();
                     BeanUtils.copyProperties(saved, profileDto);
@@ -112,6 +127,37 @@ public class ProfilesController {
                 });
     }
 
+    @GetMapping("/user")
+    public Mono<ResponseEntity<ProfileDto>> getOrCreateProfile() {
+        String username = SecurityUtils.getUsername();
+        String email = SecurityUtils.getClaimAsString("email");
+        String givenName = SecurityUtils.getClaimAsString("given_name");
+        String familyName = SecurityUtils.getClaimAsString("family_name");
+        return profileService.getProfileByUsername(username)
+                .map(saved -> {
+                    ProfileDto profileDto = new ProfileDto();
+                    BeanUtils.copyProperties(saved, profileDto);
+                    return ResponseEntity.ok().body(profileDto);
+                })
+                .switchIfEmpty(Mono.defer(() -> {
+                    // Handle profile creation if it doesn't exist
+                    ProfileDto profileDto = new ProfileDto();
+                    profileDto.setUsername(username);
+                    profileDto.setMatchedProfiles(new HashSet<>());
+                    profileDto.setIsBot(Boolean.FALSE);
+                    profileDto.setEmail(email);
+                    profileDto.setFirstName(givenName);
+                    profileDto.setLastName(familyName);
+                    return profileService
+                            .saveProfile(profileDto)
+                            .map(saved -> {
+                                BeanUtils.copyProperties(saved, profileDto);
+                                return ResponseEntity.status(HttpStatus.CREATED).body(profileDto);
+                            });
+                }));
+
+    }
+
     @PostMapping("/generate-random")
     public ResponseEntity<String> generateRandomBotProfile(@RequestBody RandomProfileInputDto randomProfileInputDto) {
         if (randomProfileInputDto == null) {
@@ -134,10 +180,10 @@ public class ProfilesController {
                 });
     }
 
-    @PutMapping("/match")
-    public Mono<ResponseEntity<Void>> addMatchedProfile(@RequestBody ProfileMatching profileMatching) {
+    @PutMapping("/match/{matchedId}")
+    public Mono<ResponseEntity<Void>> addMatchedProfile(@PathVariable String matchedId) {
         return profileService
-                .addMatchedProfile(profileMatching.getProfileId1(), profileMatching.getProfileId2())
+                .addMatchedProfileToUSer(matchedId)
                 .then(Mono.just(ResponseEntity.ok().<Void>build()));
     }
 
