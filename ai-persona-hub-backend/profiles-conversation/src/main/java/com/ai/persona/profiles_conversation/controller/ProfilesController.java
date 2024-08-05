@@ -44,10 +44,10 @@ public class ProfilesController {
                 });
     }
 
-    @GetMapping("/by-email")
-    public Mono<ResponseEntity<ProfileDto>> getProfileByEmail(@RequestParam String email) {
+    @GetMapping("/profile/{userName}")
+    public Mono<ResponseEntity<ProfileDto>> getProfileByUserName(@PathVariable String userName) {
         return profileService
-                .getProfileByEmail(email)
+                .getProfileByUsername(userName)
                 .map(saved -> {
                     ProfileDto profileDto = new ProfileDto();
                     BeanUtils.copyProperties(saved, profileDto);

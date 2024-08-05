@@ -4,8 +4,10 @@ import com.ai.persona.profiles_conversation.entity.ChatMessage;
 import com.ai.persona.profiles_conversation.entity.Conversation;
 import com.ai.persona.profiles_conversation.exception.ResourceNotFoundException;
 import com.ai.persona.profiles_conversation.repository.ConversationRepository;
+import com.ai.persona.profiles_conversation.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -31,6 +33,8 @@ public class ConversationService {
     }
 
     public Mono<Conversation> getOrCreateNewConversation(String profile1, String profile2) {
+        if(StringUtils.isEmpty(profile1))
+            profile1= SecurityUtils.getUsername();
         return conversationRepository
                 .findByProfile1AndProfile2OrProfile2AndProfile1(profile1, profile2, profile2, profile1)
                 .switchIfEmpty(createNewConversation(profile1, profile2));
