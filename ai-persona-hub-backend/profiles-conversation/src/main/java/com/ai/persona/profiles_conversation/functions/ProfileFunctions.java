@@ -28,8 +28,8 @@ public class ProfileFunctions {
     private final ProfileService profileService;
 
     @Bean
-    @Description("Save the Tinder profile information")
-    public Function<ProfileDtoGenerated, Profile> saveGeneratedProfile() {
+    @Description("Save the generated profile information")
+    public Function<ProfileDtoGenerated, Mono<ProfileDto>> saveGeneratedProfile() {
         return (ProfileDtoGenerated generated) -> {
             ProfileDto profileDto = new ProfileDto();
             BeanUtils.copyProperties(generated,profileDto);
@@ -45,7 +45,7 @@ public class ProfileFunctions {
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .subscribe();
                     })
-                    .block();
+                    .then(Mono.just(profileDto));
         };
     }
 }
