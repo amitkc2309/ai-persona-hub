@@ -132,7 +132,7 @@ public class ProfileService {
                   "steps": "%s"
                 }
                 """, prompt, negativePrompt,CommonConstants.getStabilityQuality());
-        webClient.post()
+        return webClient.post()
                 .uri(CommonConstants.getStabilityAi())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(jsonString))
@@ -146,34 +146,23 @@ public class ProfileService {
                         String directoryPath = CommonConstants.getImageDir();
                         String filePath = directoryPath + "/" + profile.getId() + ".png";
                         Path directory = Paths.get(directoryPath);
-
-                        return Mono.fromCallable(() -> {
-                            if (!Files.exists(directory)) {
-                                try {
-                                    Files.createDirectories(directory);
-                                } catch (IOException e) {
-                                    log.info("***error creating directory for" + profile.getId());
-                                }
-                            }
-                            try (FileOutputStream imageOutFile = new FileOutputStream(filePath)) {
-                                imageOutFile.write(imageBytes);
+                        if (!Files.exists(directory)) {
+                            try {
+                                Files.createDirectories(directory);
                             } catch (IOException e) {
-                                throw new RuntimeException(e);
+                                log.info("***error creating directory for" + profile.getId());
                             }
-                            return filePath;
-                        }).subscribeOn(Schedulers.boundedElastic());
-                    } else {
-                        log.info("No images found in the response.");
-                        return Mono.empty();
-                    }
-                })
-                .subscribe(filePath -> {
-                            profile.setImageUrls(filePath);
-                            profileRepository.save(profile).subscribe();
-                            log.info("Image saved at: " + filePath);
                         }
-                );
-        return Mono.empty();
+                        try (FileOutputStream imageOutFile = new FileOutputStream(filePath)) {
+                            imageOutFile.write(imageBytes);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        profile.setImageUrls(filePath);
+                        profileRepository.save(profile);
+                    }
+                    return Mono.empty();
+                });
     }
 
     public Mono<Profile> updateProfile(ProfileDto profileDto) {
