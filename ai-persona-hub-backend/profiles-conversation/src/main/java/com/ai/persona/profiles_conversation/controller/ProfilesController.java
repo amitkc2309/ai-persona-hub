@@ -134,32 +134,28 @@ public class ProfilesController {
     @GetMapping("/user")
     public Mono<ResponseEntity<ProfileDto>> getOrCreateProfile() {
         String username = SecurityUtils.getUsername();
-        String email = SecurityUtils.getClaimAsString("email");
-        String givenName = SecurityUtils.getClaimAsString("given_name");
-        String familyName = SecurityUtils.getClaimAsString("family_name");
-        return profileService.getProfileByUsername(username)
+        ProfileDto profileDto = new ProfileDto();
+        profileDto.setUsername(username);
+        profileDto.setMatchedProfiles(new HashSet<>());
+        profileDto.setIsBot(Boolean.FALSE);
+        profileDto.setEmail(SecurityUtils.getClaimAsString("email"));
+        profileDto.setFirstName(SecurityUtils.getClaimAsString("given_name"));
+        profileDto.setLastName(SecurityUtils.getClaimAsString("family_name"));
+        return profileService
+                .getProfileByUsername(username)
                 .map(saved -> {
-                    ProfileDto profileDto = new ProfileDto();
-                    BeanUtils.copyProperties(saved, profileDto);
-                    return ResponseEntity.ok().body(profileDto);
+                    ProfileDto profileDtoExisting = new ProfileDto();
+                    BeanUtils.copyProperties(saved, profileDtoExisting);
+                    return ResponseEntity.ok().body(profileDtoExisting);
                 })
-                .switchIfEmpty(Mono.defer(() -> {
-                    // Handle profile creation if it doesn't exist
-                    ProfileDto profileDto = new ProfileDto();
-                    profileDto.setUsername(username);
-                    profileDto.setMatchedProfiles(new HashSet<>());
-                    profileDto.setIsBot(Boolean.FALSE);
-                    profileDto.setEmail(email);
-                    profileDto.setFirstName(givenName);
-                    profileDto.setLastName(familyName);
-                    return profileService
-                            .saveProfile(profileDto)
-                            .map(saved -> {
-                                BeanUtils.copyProperties(saved, profileDto);
-                                return ResponseEntity.status(HttpStatus.CREATED).body(profileDto);
-                            });
-                }));
-
+                .switchIfEmpty(
+                        profileService
+                                .saveProfile(profileDto)
+                                .map(savedNew -> {
+                                    BeanUtils.copyProperties(savedNew, profileDto);
+                                    return ResponseEntity.ok().body(profileDto);
+                                })
+                );
     }
 
     @PostMapping("/generate-random")
