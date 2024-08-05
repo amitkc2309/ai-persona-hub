@@ -5,10 +5,11 @@ import SendIcon from '@mui/icons-material/Send';
 import ChatIcon from '@mui/icons-material/Chat';
 import AppBarTop from "./AppBarTop";
 import { Box } from "@mui/material";
+import axios from 'axios';
 
 export default function Chat() {
     const location = useLocation();
-    const data = location.state?.data;
+    const selectedprofile = location.state?.selectedprofile;
     const messagesEndRef = useRef(null);
     const sampleMessages = [
         { id: 1, sender: 'John', message: '1' },
@@ -22,13 +23,39 @@ export default function Chat() {
         { id: 9, sender: 'John', message: '9' },
     ];
     const [messages, setMessages] = useState(sampleMessages);
+    const [conversation, setConversation] = useState('');
     const [newMessage, setNewMessage] = useState('');
+    const [error, setError] = useState('');
     const handleSend = () => {
-        if (newMessage.trim()) {
-            setMessages([...messages, { id: messages.length + 1, sender: 'You', message: newMessage }]);
-            setNewMessage('');
-        }
+        // if (newMessage.trim()) {
+        //     setMessages([...messages, { id: messages.length + 1, sender: 'You', message: newMessage }]);
+        //     setNewMessage('');
+        // }
     };
+
+    const loadSelectedProfileChat = async () => {
+        try {
+            const params = {
+                profile : selectedprofile.username
+            };
+            var response = await axios.
+                get(`/conversation/fetch`, { params });
+            setConversation(response.data);
+            console.log(response.data);
+            setError(null);
+        }
+        catch (e) {
+            if (e.response) {
+
+                }
+        }
+    }
+
+
+    useEffect(() => {
+        loadSelectedProfileChat();
+    }, []);
+
     // Scroll to bottom when messages update
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -38,8 +65,8 @@ export default function Chat() {
         <React.Fragment>
             <Box sx={{ width: "80%", display: 'flex', flexDirection: 'column', mt: 1 }}>
                 <Card sx={{ border: 'none', boxShadow: 'none', display: 'flex', alignItems: 'center' }}>
-                    <Avatar alt="Profile Picture" src="http://192.168.148.105:8084/66a92ceb02f1af5579e7e095.png" sx={{ mr: 1 }} />
-                    <CardHeader title="Foo Bar" />
+                    <Avatar alt="Profile Picture" src={`/profiles/image/${selectedprofile.id}`} sx={{ mr: 1 }} />
+                    <CardHeader title={`${selectedprofile.firstName} ${selectedprofile.lastName}`} />
                 </Card>
                 <Paper square sx={{
                     display: 'flex',

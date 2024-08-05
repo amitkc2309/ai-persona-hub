@@ -1,8 +1,9 @@
 package com.ai.persona.profiles_conversation.controller;
 
 import com.ai.persona.profiles_conversation.dto.ConversationDto;
-import com.ai.persona.profiles_conversation.entity.ChatMessage;
+import com.ai.persona.profiles_conversation.dto.ChatMessage;
 import com.ai.persona.profiles_conversation.service.ConversationService;
+import com.ai.persona.profiles_conversation.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
@@ -28,21 +29,10 @@ public class ConversationController {
                 });
     }
 
-    @GetMapping
-    public Mono<ResponseEntity<ConversationDto>> getConversationByProfiles(@RequestParam String profile1, @RequestParam String profile2) {
-        return conversationService
-                .getConversationByProfiles(profile1, profile2)
-                .map(conversation -> {
-                    ConversationDto conversationDto = new ConversationDto();
-                    BeanUtils.copyProperties(conversation, conversationDto);
-                    return ResponseEntity.ok(conversationDto);
-                });
-    }
-
     @GetMapping("/fetch")
-    public Mono<ResponseEntity<ConversationDto>> getOrCreateNewConversation(@RequestParam String profile1, @RequestParam String profile2) {
+    public Mono<ResponseEntity<ConversationDto>> getOrCreateNewConversation(@RequestParam String profile) {
         return conversationService
-                .getOrCreateNewConversation(profile1, profile2)
+                .getOrCreateNewConversation(SecurityUtils.getUsername(),profile)
                 .map(conversation -> {
                     ConversationDto conversationDto = new ConversationDto();
                     BeanUtils.copyProperties(conversation, conversationDto);
@@ -51,9 +41,11 @@ public class ConversationController {
     }
 
     @PutMapping(("/{conversationId}"))
-    public Mono<ResponseEntity<Void>> addMessageToConversation(@PathVariable String conversationId, @RequestBody ChatMessage chatMessage) {
+    public Mono<ResponseEntity<Void>> addMessageToConversation(@PathVariable String conversationId,
+                                                               @RequestBody ChatMessage chatMessage,
+                                                               @RequestBody String profile) {
         return conversationService
-                .addMessageToConversation(conversationId, chatMessage)
+                .addMessageToConversation(conversationId, chatMessage,profile)
                 .then(Mono.just(ResponseEntity.ok().<Void>build()));
     }
 }

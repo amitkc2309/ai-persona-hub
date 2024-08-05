@@ -22,7 +22,7 @@ export default function RandomProfile() {
   const [loading, setLoading] = useState(false);
 
   const goToChat = () => {
-    navigate('/chat', { state: { data: 'example data' } });
+    navigate('/chat', { state: { selectedprofile: randomProfile } });
   };
 
   const handlegetRandomProfile = async () => {

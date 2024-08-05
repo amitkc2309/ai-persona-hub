@@ -1,4 +1,4 @@
-package com.ai.persona.profiles_conversation.entity;
+package com.ai.persona.profiles_conversation.dto;
 
 import lombok.Data;
 

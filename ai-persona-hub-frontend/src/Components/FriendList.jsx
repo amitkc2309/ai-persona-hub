@@ -92,8 +92,7 @@ export default function FriendList() {
                                         onClick={goToProfile}>
                                         <ListItemAvatar>
                                             <Avatar alt="Profile Picture"
-                                                src={`${config.BACKEND_URL}/profiles/image/${id}`} />
-                                            {/* src="https://picsum.photos/50" /> */}
+                                                src={`/profiles/image/${id}`} />
                                         </ListItemAvatar>
                                         <ListItemText primary={`${firstName} ${lastName}`}
                                             secondary={bio.length > 50 ? `${bio.slice(0, 150)} ...` : bio}
