@@ -29,7 +29,7 @@ public class ProfileFunctions {
 
     @Bean
     @Description("Save the generated profile information")
-    public Function<ProfileDtoGenerated, Mono<ProfileDto>> saveGeneratedProfile() {
+    public Function<ProfileDtoGenerated, Profile> saveGeneratedProfile() {
         return (ProfileDtoGenerated generated) -> {
             ProfileDto profileDto = new ProfileDto();
             BeanUtils.copyProperties(generated,profileDto);
@@ -45,7 +45,9 @@ public class ProfileFunctions {
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .subscribe();
                     })
-                    .then(Mono.just(profileDto));
+                    .block();
+                    //Code wise this is correct but does not work because ollama does not support Async function calling yet
+                    //.then(Mono.just(profileDto));
         };
     }
 }
