@@ -7,7 +7,6 @@ import FriendList from "./Components/FriendList"
 import Chat from "./Components/Chat"
 import theme from "./Components/Theme"
 import AppBarTop from "./Components/AppBarTop"
-import Test from "./Components/Test"
 
 
 function App() {

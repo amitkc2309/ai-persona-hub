@@ -18,6 +18,7 @@ import org.springframework.security.web.server.authentication.logout.WebSessionS
 import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
 import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CsrfToken;
+import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
@@ -48,7 +49,10 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutSuccessHandler(keyCloakLogoutHandler(clientRegistrationRepository)))
                 //.csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .csrf(csrf -> csrf.csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse()))
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(new ServerCsrfTokenRequestAttributeHandler())
+                )
                 .build();
 
     }

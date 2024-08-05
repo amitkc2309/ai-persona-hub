@@ -26,15 +26,14 @@ export default function GenerateAIProfile() {
         };
         try {
             const csrfToken=Cookies.get('XSRF-TOKEN');
-            console.log(csrfToken);
             const response = await axios.
                 post(`/profiles/generate-random`, payload,
                     {
-                        headers: {
-                            'X-XSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
+                        // headers: {
+                        //     'X-XSRF-TOKEN': csrfToken,
+                        //     'Accept': 'application/json',
+                        //     'Content-Type': 'application/json'
+                        // },
                     }
                 );
             setGeneratedProfile(response.data);
