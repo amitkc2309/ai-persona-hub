@@ -35,9 +35,9 @@ export default function Chat() {
                 messageText: sentText,
             };
             setMessages(messages => [...messages, sentMessage]);
+            setSentText('');
             responseMessage = await axios.put(`/conversation/${conversation.id}`, sentMessage, { params });
             setMessages(messages => [...messages, responseMessage.data]);
-            setSentText('');
             setError(null);
         }
         catch (e) {

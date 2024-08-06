@@ -77,26 +77,16 @@ public class ConversationService {
         String username = SecurityUtils.getUsername();
         String firstName = SecurityUtils.getClaimAsString("given_name");
         String lastName = SecurityUtils.getClaimAsString("family_name");
-        String systemMessageStr = "You are a " + profile.getAge() + " year old " + profile.getEthnicity() + " " + profile.getGender() +
-                " called " + profile.getFirstName() + " " + profile.getLastName() + " matched with a " + firstName + " " + lastName +
-                " on a Friends making online app. This is an in-app text conversation between you two. Pretend to be the provided person and respond to the conversation as if writing on the app. " +
+        String systemMessageStr = "You are a " + profile.getAge() + " years old " + profile.getEthnicity() + " " + profile.getGender() +
+                " called " + profile.getFirstName() + " " + profile.getLastName()+
                 "Your bio is: " + profile.getBio() + " and your Myers Briggs personality type is " + profile.getMyersBriggsPersonalityType() +
-                ". Respond in the role of this person only. " +
-                "# Personality and Tone: " +
-                "The message should look like what a Facebook or Tinder user writes in response to chat. Keep it short and brief. No hashtags or generic messages. " +
-                "Be friendly, approachable, and slightly playful. Reflect confidence and genuine interest in getting to know the other person. " +
-                "Use humor and wit appropriately to make the conversation enjoyable. Match the tone of the user's messages—be more casual or serious as needed. " +
-                "# Conversation Starters: " +
-                "Use unique and intriguing openers to spark interest. Avoid generic greetings like \"Hi\" or \"Hey\"; instead, ask interesting questions or make personalized comments based on the other person's profile. " +
-                "# Profile Insights: " +
-                "Use information from the other person's profile to create tailored messages. Show genuine curiosity about their hobbies, interests, and background. " +
-                "Compliment specific details from their profile to make them feel special. # Engagement: " +
-                "Ask open-ended questions to keep the conversation flowing. Share interesting anecdotes or experiences related to the topic of conversation. " +
-                "Respond promptly to keep the momentum of the chat going. # Creativity: " +
-                "Incorporate playful banter, wordplay, or light teasing to add a fun element to the chat. Suggest fun activities or ideas for a potential date. " +
-                "# Respect and Sensitivity: " +
-                "Always be respectful and considerate of the other person's feelings. Avoid controversial or sensitive topics unless the other person initiates them. " +
-                "Be mindful of boundaries and avoid overly personal or intrusive questions early in the conversation.";
+                ". You are talking to user named "+firstName+" "+lastName+
+                ". This is an in-app text conversation between you and user on a friends making app platform. " +
+                " Respond as if you are"+profile.getFirstName()+" "+profile.getLastName()+"."+
+                "Be friendly, engaging, playful and keep your responses brief. Use humor and match the user's tone. Avoid generic greetings. " +
+                "Compliment specifics to make them feel special. Ask open-ended questions to keep the chat flowing, share relevant anecdotes, and respond promptly. " +
+                "Incorporate playful banter and suggest fun activities. Be respectful and avoid sensitive topics unless brought up by the user.";
+
         SystemMessage systemMessage = new SystemMessage(systemMessageStr);
         List<AbstractMessage> oldMessages  = conversation.getMessages().stream().map(message -> {
             if (message.getSenderProfile().equals(profile.getUsername())) {
@@ -108,8 +98,8 @@ public class ConversationService {
         List<Message> allMessages = new ArrayList<>();
         allMessages.add(systemMessage);
         allMessages.addAll(oldMessages);
-        //Prompt prompt = new Prompt(allMessages);
-        //ChatResponse response = ollamaChatModel.call(prompt);
+        Prompt prompt = new Prompt(allMessages);
+        ChatResponse response = ollamaChatModel.call(prompt);
 
         ChatMessage chatMessage=new ChatMessage();
         int lastId=0;
@@ -117,11 +107,11 @@ public class ConversationService {
             lastId= Integer.parseInt(conversation.getMessages().getLast().getId());
         chatMessage.setId(String.valueOf(lastId+1));
 
-        String url = "https://www.random.org/strings/?num=1&len=10&digits=on&lower=on&upper=on&unique=on&format=plain&rnd=new";
-        ResponseEntity<String> sampleString = restTemplate.getForEntity(url, String.class);
-        chatMessage.setMessageText(sampleString.getBody());
+        //String url = "https://www.random.org/strings/?num=1&len=10&digits=on&lower=on&upper=on&unique=on&format=plain&rnd=new";
+        //ResponseEntity<String> sampleString = restTemplate.getForEntity(url, String.class);
+        //chatMessage.setMessageText(sampleString.getBody());
 
-        //chatMessage.setMessageText(response.getResult().getOutput().getContent());
+        chatMessage.setMessageText(response.getResult().getOutput().getContent());
         chatMessage.setSenderProfile(profile.getUsername());
         chatMessage.setMessageTime(LocalDateTime.now());
 
