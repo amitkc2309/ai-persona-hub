@@ -18,10 +18,10 @@ export default function Chat() {
 
     const handleSend = async () => {
         var responseMessage = '';
-        var nextId = '';
+        var nextId = 0;
         if (messages && messages.length > 0) {
             var lastMessage = messages[messages.length - 1];
-            nextId = lastMessage.id + 1;
+            nextId = Number(lastMessage.id) + 1;
         }
         else {
             nextId = 1;
@@ -35,10 +35,8 @@ export default function Chat() {
                 messageText: sentText,
             };
             setMessages(messages => [...messages, sentMessage]);
-            console.log(messages);
             responseMessage = await axios.put(`/conversation/${conversation.id}`, sentMessage, { params });
-            setMessages(messages => [...messages, responseMessage]);
-            console.log(messages);
+            setMessages(messages => [...messages, responseMessage.data]);
             setSentText('');
             setError(null);
         }

@@ -114,7 +114,7 @@ public class ConversationService {
         ChatMessage chatMessage=new ChatMessage();
         int lastId=0;
         if(!conversation.getMessages().isEmpty())
-            lastId=conversation.getMessages().size();
+            lastId= Integer.parseInt(conversation.getMessages().getLast().getId());
         chatMessage.setId(String.valueOf(lastId+1));
 
         String url = "https://www.random.org/strings/?num=1&len=10&digits=on&lower=on&upper=on&unique=on&format=plain&rnd=new";
