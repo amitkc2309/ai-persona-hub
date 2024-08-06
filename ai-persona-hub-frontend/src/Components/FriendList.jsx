@@ -36,7 +36,6 @@ export default function FriendList() {
                 get(`/profiles/matched-bots`);
             const friendsData = response.data.map(friend => friend.body);
             setFriends(friendsData);
-            console.log(response.data);
             setError(null);
         }
         catch (e) {
@@ -83,7 +82,7 @@ export default function FriendList() {
                         borderRadius: '5px',
                     },
                 }}>
-                    {((friends && friends.length) && 
+                    {((friends && friends.length>0) && 
                     <List sx={{ border: 'none', boxShadow: 'none', m: .5 }}>
                         {friends.map(({ id, firstName, lastName, age, bio }) => (
                             <React.Fragment key={id}>

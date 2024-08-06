@@ -41,11 +41,13 @@ public class ConversationController {
     }
 
     @PutMapping(("/{conversationId}"))
-    public Mono<ResponseEntity<Void>> addMessageToConversation(@PathVariable String conversationId,
+    public Mono<ResponseEntity<ChatMessage>> addMessageToConversation(@PathVariable String conversationId,
                                                                @RequestBody ChatMessage chatMessage,
-                                                               @RequestBody String profile) {
+                                                               @RequestParam String profile) {
         return conversationService
-                .addMessageToConversation(conversationId, chatMessage,profile)
-                .then(Mono.just(ResponseEntity.ok().<Void>build()));
+                .addMessageToConversation(conversationId,chatMessage,profile)
+                .map(conversation -> {
+                    return ResponseEntity.ok(conversation.getMessages().getLast());
+                });
     }
 }

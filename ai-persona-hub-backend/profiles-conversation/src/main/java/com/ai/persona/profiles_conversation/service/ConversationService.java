@@ -12,7 +12,11 @@ import org.springframework.ai.chat.messages.*;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.ollama.OllamaChatModel;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -27,6 +31,7 @@ public class ConversationService {
     private final ConversationRepository conversationRepository;
     private final OllamaChatModel ollamaChatModel;
     private final ProfileRepository profileRepository;
+    private final RestTemplate restTemplate;
 
     public Mono<Conversation> getConversationById(String conversationId) {
         return conversationRepository
@@ -49,13 +54,14 @@ public class ConversationService {
     }
 
     public Mono<Conversation> addMessageToConversation(String conversationId, ChatMessage chatMessage,String profile) {
+        String username = SecurityUtils.getUsername();
         return this
                 .getConversationById(conversationId)
                 .flatMap(conversation -> {
                     chatMessage.setId(UUID.randomUUID().toString());
                     chatMessage.setMessageTime(LocalDateTime.now());
                     chatMessage.setId(UUID.randomUUID().toString());
-                    chatMessage.setSenderProfile(SecurityUtils.getUsername());
+                    chatMessage.setSenderProfile(username);
                     conversation.getMessages().add(chatMessage);
                     return profileRepository
                             .findByUsername(profile)
@@ -105,12 +111,17 @@ public class ConversationService {
         List<Message> allMessages = new ArrayList<>();
         allMessages.add(systemMessage);
         allMessages.addAll(oldMessages);
-        Prompt prompt = new Prompt(allMessages);
-        ChatResponse response = ollamaChatModel.call(prompt);
+        //Prompt prompt = new Prompt(allMessages);
+        //ChatResponse response = ollamaChatModel.call(prompt);
 
         ChatMessage chatMessage=new ChatMessage();
         chatMessage.setId(UUID.randomUUID().toString());
-        chatMessage.setMessageText(response.getResult().getOutput().getContent());
+
+        String url = "https://www.random.org/strings/?num=1&len=10&digits=on&lower=on&upper=on&unique=on&format=plain&rnd=new";
+        ResponseEntity<String> sampleString = restTemplate.getForEntity(url, String.class);
+        chatMessage.setMessageText(sampleString.getBody());
+
+        //chatMessage.setMessageText(response.getResult().getOutput().getContent());
         chatMessage.setSenderProfile(profile.getUsername());
         chatMessage.setMessageTime(LocalDateTime.now());
 

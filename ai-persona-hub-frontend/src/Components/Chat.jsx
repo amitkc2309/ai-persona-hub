@@ -11,26 +11,33 @@ export default function Chat() {
     const location = useLocation();
     const selectedprofile = location.state?.selectedprofile;
     const messagesEndRef = useRef(null);
-    const sampleMessages = [
-        { id: 1, sender: 'John', message: '1' },
-        { id: 2, sender: 'You', message: '2' },
-        { id: 3, sender: 'John', message: '3' },
-        { id: 4, sender: 'you', message: 'dhdkashdkjashdajkdasjkdashdjkasdawuiedhmasn dsajldgawdnas bdashjasbndawdkwl;jdkasdjkasndasm,dnwqludbj asndedubjandslds;oljnekd.sm,dbsd ljkdnawwkd' },
-        { id: 5, sender: 'John', message: '5' },
-        { id: 6, sender: 'you', message: '6' },
-        { id: 7, sender: 'John', message: '7' },
-        { id: 8, sender: 'you', message: '8' },
-        { id: 9, sender: 'John', message: '9' },
-    ];
-    const [messages, setMessages] = useState(sampleMessages);
+    const [messages, setMessages] = useState('');
     const [conversation, setConversation] = useState('');
-    const [newMessage, setNewMessage] = useState('');
+    const [sentText, setSentText] = useState('');
     const [error, setError] = useState('');
-    const handleSend = () => {
-        // if (newMessage.trim()) {
-        //     setMessages([...messages, { id: messages.length + 1, sender: 'You', message: newMessage }]);
-        //     setNewMessage('');
-        // }
+
+    const handleSend = async () => {
+        var responseMessage='';
+        try {
+            const params = {
+                profile : selectedprofile.username
+            };
+            const body = {
+                messageText: sentText,
+            };
+            responseMessage = await axios.put(`/conversation/${conversation.id}`,body,{ params });
+            console.log(responseMessage.data);
+            setError(null);
+        }
+        catch (e) {
+            if (e.response) {
+                setError(e.response);
+            }
+        }
+        if (sentText.trim()) {
+            setMessages([...messages, responseMessage]);
+            setSentText('');
+        }
     };
 
     const loadSelectedProfileChat = async () => {
@@ -38,10 +45,9 @@ export default function Chat() {
             const params = {
                 profile : selectedprofile.username
             };
-            var response = await axios.
-                get(`/conversation/fetch`, { params });
-            setConversation(response.data);
-            console.log(response.data);
+            const conversation = await axios.get(`/conversation/fetch`, { params });
+            setMessages(conversation.data.messages);
+            setConversation(conversation.data);
             setError(null);
         }
         catch (e) {
@@ -50,7 +56,6 @@ export default function Chat() {
                 }
         }
     }
-
 
     useEffect(() => {
         loadSelectedProfileChat();
@@ -65,7 +70,8 @@ export default function Chat() {
         <React.Fragment>
             <Box sx={{ width: "80%", display: 'flex', flexDirection: 'column', mt: 1 }}>
                 <Card sx={{ border: 'none', boxShadow: 'none', display: 'flex', alignItems: 'center' }}>
-                    <Avatar alt="Profile Picture" src={`/profiles/image/${selectedprofile.id}`} sx={{ mr: 1 }} />
+                    {selectedprofile.imageUrls && (<Avatar src={`/profiles/image/${selectedprofile.id}`} sx={{ mr: 1 }} />)}
+                    {!selectedprofile.imageUrls && (<Avatar alt={selectedprofile.firstName} src='random' sx={{ mr: 1 }} />)}
                     <CardHeader title={`${selectedprofile.firstName} ${selectedprofile.lastName}`} />
                 </Card>
                 <Paper square sx={{
@@ -83,23 +89,20 @@ export default function Chat() {
                         borderRadius: '5px',
                     },
                 }}>
-                    <List sx={{ border: 'none', boxShadow: 'none', m: .5 }}>
-                        {messages.map(({ id, sender, message }) => (
+                {((messages && messages.length>0) && 
+                <List sx={{ border: 'none', boxShadow: 'none', m: .5 }}>
+                        {messages.map(({ id, messageText, senderProfile }) => (
                             <React.Fragment key={id}>
                                 <Box
                                     sx={{
                                         display: 'flex',
-                                        justifyContent: id % 2 === 0 ? 'flex-end' : 'flex-start',
+                                        justifyContent: senderProfile === selectedprofile.username ? 'flex-start' : 'flex-end',
                                         mb: 1,
                                     }}>
                                     <Card sx={{ mb: 1, borderRadius: '16px', boxShadow: 4, maxWidth:"75%"}}>
                                         <ListItem>
-                                            {/* <ListItemAvatar>
-                                            <Avatar>{sender.charAt(0)}</Avatar>
-                                        </ListItemAvatar> */}
                                             <ListItemText
-                                                // primary={sender}
-                                                secondary={message}
+                                                secondary={messageText}
                                             />
                                         </ListItem>
                                     </Card>
@@ -108,24 +111,22 @@ export default function Chat() {
                         ))}
                         {/* Reference for scrolling */}
                         <div ref={messagesEndRef} />
-                    </List>
+                    </List>)}
+                    
                 </Paper>
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 4, mb: 4}}>
                     <TextField
                         fullWidth
                         variant="outlined"
                         placeholder="Type a message..."
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
+                        value={sentText}
+                        onChange={(e) => setSentText(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                     />
                     <IconButton color="primary" onClick={handleSend} sx={{ ml: 2 }}>
                         <SendIcon />
                     </IconButton>
                 </Box>
-                {/* <Box sx={{ maxWidth: 512, display: 'flex', flexDirection: 'column' }}>
-                    {data}
-                </Box> */}
             </Box>
         </React.Fragment>
     );
