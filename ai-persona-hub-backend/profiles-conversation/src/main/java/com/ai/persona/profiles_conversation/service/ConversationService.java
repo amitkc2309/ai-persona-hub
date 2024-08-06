@@ -58,9 +58,7 @@ public class ConversationService {
         return this
                 .getConversationById(conversationId)
                 .flatMap(conversation -> {
-                    chatMessage.setId(UUID.randomUUID().toString());
                     chatMessage.setMessageTime(LocalDateTime.now());
-                    chatMessage.setId(UUID.randomUUID().toString());
                     chatMessage.setSenderProfile(username);
                     conversation.getMessages().add(chatMessage);
                     return profileRepository
@@ -100,7 +98,6 @@ public class ConversationService {
                 "Always be respectful and considerate of the other person's feelings. Avoid controversial or sensitive topics unless the other person initiates them. " +
                 "Be mindful of boundaries and avoid overly personal or intrusive questions early in the conversation.";
         SystemMessage systemMessage = new SystemMessage(systemMessageStr);
-
         List<AbstractMessage> oldMessages  = conversation.getMessages().stream().map(message -> {
             if (message.getSenderProfile().equals(profile.getUsername())) {
                 return new AssistantMessage(message.getMessageText());
@@ -115,7 +112,10 @@ public class ConversationService {
         //ChatResponse response = ollamaChatModel.call(prompt);
 
         ChatMessage chatMessage=new ChatMessage();
-        chatMessage.setId(UUID.randomUUID().toString());
+        int lastId=0;
+        if(!conversation.getMessages().isEmpty())
+            lastId=conversation.getMessages().size();
+        chatMessage.setId(String.valueOf(lastId+1));
 
         String url = "https://www.random.org/strings/?num=1&len=10&digits=on&lower=on&upper=on&unique=on&format=plain&rnd=new";
         ResponseEntity<String> sampleString = restTemplate.getForEntity(url, String.class);

@@ -1,4 +1,4 @@
-import React, { useState,useEffect,useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from "react-router-dom";
 import { AppBar, Toolbar, Typography, IconButton, Paper, List, ListItem, ListItemAvatar, Avatar, ListItemText, TextField, Button, Divider, Card, CardHeader } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
@@ -17,16 +17,29 @@ export default function Chat() {
     const [error, setError] = useState('');
 
     const handleSend = async () => {
-        var responseMessage='';
+        var responseMessage = '';
+        var nextId = '';
+        if (messages && messages.length > 0) {
+            var lastMessage = messages[messages.length - 1];
+            nextId = lastMessage.id + 1;
+        }
+        else {
+            nextId = 1;
+        }
         try {
             const params = {
-                profile : selectedprofile.username
+                profile: selectedprofile.username
             };
-            const body = {
+            const sentMessage = {
+                id: nextId,
                 messageText: sentText,
             };
-            responseMessage = await axios.put(`/conversation/${conversation.id}`,body,{ params });
-            console.log(responseMessage.data);
+            setMessages(messages => [...messages, sentMessage]);
+            console.log(messages);
+            responseMessage = await axios.put(`/conversation/${conversation.id}`, sentMessage, { params });
+            setMessages(messages => [...messages, responseMessage]);
+            console.log(messages);
+            setSentText('');
             setError(null);
         }
         catch (e) {
@@ -34,16 +47,12 @@ export default function Chat() {
                 setError(e.response);
             }
         }
-        if (sentText.trim()) {
-            setMessages([...messages, responseMessage]);
-            setSentText('');
-        }
     };
 
     const loadSelectedProfileChat = async () => {
         try {
             const params = {
-                profile : selectedprofile.username
+                profile: selectedprofile.username
             };
             const conversation = await axios.get(`/conversation/fetch`, { params });
             setMessages(conversation.data.messages);
@@ -53,7 +62,7 @@ export default function Chat() {
         catch (e) {
             if (e.response) {
 
-                }
+            }
         }
     }
 
@@ -89,32 +98,32 @@ export default function Chat() {
                         borderRadius: '5px',
                     },
                 }}>
-                {((messages && messages.length>0) && 
-                <List sx={{ border: 'none', boxShadow: 'none', m: .5 }}>
-                        {messages.map(({ id, messageText, senderProfile }) => (
-                            <React.Fragment key={id}>
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        justifyContent: senderProfile === selectedprofile.username ? 'flex-start' : 'flex-end',
-                                        mb: 1,
-                                    }}>
-                                    <Card sx={{ mb: 1, borderRadius: '16px', boxShadow: 4, maxWidth:"75%"}}>
-                                        <ListItem>
-                                            <ListItemText
-                                                secondary={messageText}
-                                            />
-                                        </ListItem>
-                                    </Card>
-                                </Box>
-                            </React.Fragment>
-                        ))}
-                        {/* Reference for scrolling */}
-                        <div ref={messagesEndRef} />
-                    </List>)}
-                    
+                    {((messages && messages.length > 0) &&
+                        <List sx={{ border: 'none', boxShadow: 'none', m: .5 }}>
+                            {messages.map(({ id, messageText, senderProfile }) => (
+                                <React.Fragment key={id}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: senderProfile === selectedprofile.username ? 'flex-start' : 'flex-end',
+                                            mb: 1,
+                                        }}>
+                                        <Card sx={{ mb: 1, borderRadius: '16px', boxShadow: 4, maxWidth: "75%" }}>
+                                            <ListItem>
+                                                <ListItemText
+                                                    secondary={messageText}
+                                                />
+                                            </ListItem>
+                                        </Card>
+                                    </Box>
+                                </React.Fragment>
+                            ))}
+                            {/* Reference for scrolling */}
+                            <div ref={messagesEndRef} />
+                        </List>)}
+
                 </Paper>
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: 4, mb: 4}}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 4, mb: 4 }}>
                     <TextField
                         fullWidth
                         variant="outlined"
