@@ -68,7 +68,7 @@ spring:
 
 #frontEnd
 front_end:
-  url: http://192.168.148.105:5173
+  url: http://192.168.1.53:5173
 
 #Actuator with readiness and liveness
 management:

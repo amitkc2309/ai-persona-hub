@@ -29,7 +29,7 @@ public class ProfileFunctions {
 
     @Bean
     @Description("Save the generated profile information")
-    public Function<ProfileDtoGenerated, Profile> saveGeneratedProfile() {
+    public Function<ProfileDtoGenerated, Void> saveGeneratedProfile() {
         return (ProfileDtoGenerated generated) -> {
             ProfileDto profileDto = new ProfileDto();
             BeanUtils.copyProperties(generated,profileDto);
@@ -37,14 +37,14 @@ public class ProfileFunctions {
             profileDto.setMatchedProfiles(new HashSet<>());
             profileDto.setImageUrls(null);
             profileDto.setUsername(UUID.randomUUID().toString());
-            log.info("*****saving profile "+profileDto.toString());
+            log.info("********************************saving profile "+profileDto.toString());
             Profile saved = profileService.saveProfile(profileDto).block();
             if(saved!=null) {
                 profileService.generateAndSaveImage(saved)
                         .subscribeOn(Schedulers.boundedElastic())
                         .subscribe();
             }
-            return saved;
+            return null;
         };
     }
 }

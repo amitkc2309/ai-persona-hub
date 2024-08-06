@@ -89,10 +89,9 @@ public class ProfileService {
         String personalityType = CommonUtility.getPersonalityTypes();
         String randomEthnicity = ethnicity != null ? ethnicity : CommonUtility.getRandomEthnicity();
         String prompt =
-                "Create a online profile persona of a " + randomAge +" years old"+
+                "Create a random online profile persona of a " + randomAge +" years old"+
                 " with personality Type " + personalityType + ",ethnicity as " + randomEthnicity +" and gender as "+randomGender
-                + ",including the first name, last name, email, myersBriggsPersonalityType and bio. " +
-                "Save the generated profile by calling saveGeneratedProfile function";
+                + ". Generate the first name, last name, email, myersBriggsPersonalityType and bio as well. ";
         log.info("prompt to create profile: " + prompt);
         UserMessage userMessage = new UserMessage(prompt);
         ChatResponse response = ollamaChatModel.call(new Prompt(userMessage,

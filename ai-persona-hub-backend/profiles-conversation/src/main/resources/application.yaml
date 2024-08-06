@@ -22,7 +22,7 @@ spring:
       chat:
         options:
           temperature: 0.7
-          model: mistral
+          model: llama3.1:latest #mistral
 
 keycloak_url: http://localhost:7080
 

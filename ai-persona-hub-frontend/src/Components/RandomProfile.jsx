@@ -80,9 +80,10 @@ export default function RandomProfile() {
     <>
       {randomProfile && (<Box sx={{ width: "80%", maxWidth: 512 }}>
         <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between' }}>
-          {!randomProfile.isMatched && (<IconButton aria-label="add to favorites" onClick={() => addMatchedProfile(randomProfile.id)} sx={{ color: 'red' }}>
+          {!randomProfile.isMatched && (<IconButton aria-label="add to favorites" onClick={() => addMatchedProfile(randomProfile.id)} >
             <FavoriteIcon />
           </IconButton>)}
+          {(randomProfile.isMatched && <FavoriteIcon sx={{ color: 'red' }} />)}
           <IconButton aria-label="chat" onClick={goToChat} sx={{ color: theme => theme.palette.primary.main }}>
             <Chat />
           </IconButton>
