@@ -1,6 +1,7 @@
 package com.ai.persona.profiles_conversation.service;
 
 import com.ai.persona.profiles_conversation.dto.ChatMessage;
+import com.ai.persona.profiles_conversation.dto.ProfileDto;
 import com.ai.persona.profiles_conversation.entity.Conversation;
 import com.ai.persona.profiles_conversation.entity.Profile;
 import com.ai.persona.profiles_conversation.exception.ResourceNotFoundException;
@@ -8,6 +9,7 @@ import com.ai.persona.profiles_conversation.repository.ConversationRepository;
 import com.ai.persona.profiles_conversation.repository.ProfileRepository;
 import com.ai.persona.profiles_conversation.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.ai.chat.messages.*;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -26,6 +28,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Log
 public class ConversationService {
 
     private final ConversationRepository conversationRepository;
@@ -55,6 +58,11 @@ public class ConversationService {
 
     public Mono<Conversation> addMessageToConversation(String conversationId, ChatMessage chatMessage,String profile) {
         String username = SecurityUtils.getUsername();
+        String firstName = SecurityUtils.getClaimAsString("given_name");
+        String lastName = SecurityUtils.getClaimAsString("family_name");
+        ProfileDto user = new ProfileDto();
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
         return this
                 .getConversationById(conversationId)
                 .flatMap(conversation -> {
@@ -64,7 +72,7 @@ public class ConversationService {
                     return profileRepository
                             .findByUsername(profile)
                             .flatMap(savedProfile->{
-                                Conversation responseFromAI = getResponseFromAI(conversation, savedProfile);
+                                Conversation responseFromAI = getResponseFromAI(conversation, savedProfile, user);
                                 return conversationRepository.save(responseFromAI);
                             });
                 });
@@ -73,22 +81,22 @@ public class ConversationService {
     /**
      * Chat with AI using conversation history
      */
-    public Conversation getResponseFromAI(Conversation conversation, Profile profile){
-        String username = SecurityUtils.getUsername();
-        String firstName = SecurityUtils.getClaimAsString("given_name");
-        String lastName = SecurityUtils.getClaimAsString("family_name");
+    public Conversation getResponseFromAI(Conversation conversation, Profile profile, ProfileDto user){
         String systemMessageStr = "You are a " + profile.getAge() + " years old " + profile.getEthnicity() + " " + profile.getGender() +
-                " called " + profile.getFirstName() + " " + profile.getLastName()+
-                "Your bio is: " + profile.getBio() + " and your Myers Briggs personality type is " + profile.getMyersBriggsPersonalityType() +
-                ". You are talking to user named "+firstName+" "+lastName+
-                ". This is an in-app text conversation between you and user on a friends making app platform. " +
-                " Respond as if you are"+profile.getFirstName()+" "+profile.getLastName()+"."+
-                "Be friendly, engaging, playful and keep your responses brief. Use humor and match the user's tone. Avoid generic greetings. " +
-                "Compliment specifics to make them feel special. Ask open-ended questions to keep the chat flowing, share relevant anecdotes, and respond promptly. " +
-                "Incorporate playful banter and suggest fun activities. Be respectful and avoid sensitive topics unless brought up by the user.";
-
+                " named " + profile.getFirstName() + " " + profile.getLastName()+
+                ". Your bio is: " + profile.getBio() + ". And your Myers Briggs personality type is " + profile.getMyersBriggsPersonalityType() +
+                ". You are talking to user named "+user.getFirstName()+" "+user.getLastName()+
+                ". This is an in-app text conversation between you and "+user.getFirstName()+" "+user.getLastName()+" on a friends making app platform. " +
+                " Respond as if you are "+profile.getFirstName()+" "+profile.getLastName()+"."+
+                " Be friendly, engaging, playful and keep your responses brief. Use humor and match the user's tone." +
+                " Ask open-ended questions to keep the chat flowing, share relevant anecdotes, and respond promptly. " +
+                "Incorporate playful banter and reply to queries correctly.";
+        log.info(systemMessageStr);
         SystemMessage systemMessage = new SystemMessage(systemMessageStr);
-        List<AbstractMessage> oldMessages  = conversation.getMessages().stream().map(message -> {
+        List<AbstractMessage> oldMessages  = conversation
+                .getMessages()
+                .stream()
+                .map(message -> {
             if (message.getSenderProfile().equals(profile.getUsername())) {
                 return new AssistantMessage(message.getMessageText());
             } else {

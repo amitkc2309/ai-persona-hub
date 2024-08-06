@@ -91,7 +91,7 @@ public class ProfileService {
         String prompt =
                 "Create a online profile persona of a " + randomAge +" years old"+
                 " with personality Type " + personalityType + ",ethnicity as " + randomEthnicity +" and gender as "+randomGender
-                + ",including the first name, last name, myersBriggsPersonalityType and bio. " +
+                + ",including the first name, last name, email, myersBriggsPersonalityType and bio. " +
                 "Save the generated profile by calling saveGeneratedProfile function";
         log.info("prompt to create profile: " + prompt);
         UserMessage userMessage = new UserMessage(prompt);
@@ -112,12 +112,12 @@ public class ProfileService {
         return response.getResult().getOutput().getContent();
     }
 
-    public Mono<Void> generateAndSaveImage(Profile profile) {
-        log.info("****STABILITY_AI="+ CommonConstants.getStabilityAi());
-        log.info("****STABILITY_AI_QUALITY="+CommonConstants.getStabilityQuality());
+    public Mono<Profile> generateAndSaveImage(Profile profile) {
+        log.info("****STABILITY_AI=" + CommonConstants.getStabilityAi());
+        log.info("****STABILITY_AI_QUALITY=" + CommonConstants.getStabilityQuality());
         log.info("*******generating image for " + profile.toString());
-        String prompt = "Photo for online bio of "+profile.getAge() +" year old," + profile.getEthnicity() +" "+
-                profile.getGender()+" with personality Type " + profile.getMyersBriggsPersonalityType();
+        String prompt = "Photo for online bio of " + profile.getAge() + " year old," + profile.getEthnicity() + " " +
+                profile.getGender() + " with personality Type " + profile.getMyersBriggsPersonalityType();
         log.info("*******prompt for generating image " + prompt);
         String negativePrompt = "multiple faces, lowres, text, error, cropped, worst quality, low quality, " +
                 "jpeg artifacts, ugly,flat nose, duplicate, morbid, mutilated, out of frame, extra fingers, mutated hands, " +
@@ -131,8 +131,8 @@ public class ProfileService {
                   "negative_prompt": "%s",
                   "steps": "%s"
                 }
-                """, prompt, negativePrompt,CommonConstants.getStabilityQuality());
-        webClient.post()
+                """, prompt, negativePrompt, CommonConstants.getStabilityQuality());
+        return webClient.post()
                 .uri(CommonConstants.getStabilityAi())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(jsonString))
@@ -146,34 +146,23 @@ public class ProfileService {
                         String directoryPath = CommonConstants.getImageDir();
                         String filePath = directoryPath + "/" + profile.getId() + ".png";
                         Path directory = Paths.get(directoryPath);
-
-                        return Mono.fromCallable(() -> {
-                            if (!Files.exists(directory)) {
-                                try {
-                                    Files.createDirectories(directory);
-                                } catch (IOException e) {
-                                    log.info("***error creating directory for" + profile.getId());
-                                }
-                            }
-                            try (FileOutputStream imageOutFile = new FileOutputStream(filePath)) {
-                                imageOutFile.write(imageBytes);
+                        if (!Files.exists(directory)) {
+                            try {
+                                Files.createDirectories(directory);
                             } catch (IOException e) {
-                                throw new RuntimeException(e);
+                                log.info("***error creating directory for" + profile.getId());
                             }
-                            return filePath;
-                        }).subscribeOn(Schedulers.boundedElastic());
-                    } else {
-                        log.info("No images found in the response.");
-                        return Mono.empty();
-                    }
-                })
-                .subscribe(filePath -> {
-                            profile.setImageUrls(filePath);
-                            profileRepository.save(profile).subscribe();
-                            log.info("Image saved at: " + filePath);
                         }
-                );
-        return Mono.empty();
+                        try (FileOutputStream imageOutFile = new FileOutputStream(filePath)) {
+                            imageOutFile.write(imageBytes);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        profile.setImageUrls(filePath);
+                        return profileRepository.save(profile);
+                    }
+                    return Mono.empty();
+                });
     }
 
 

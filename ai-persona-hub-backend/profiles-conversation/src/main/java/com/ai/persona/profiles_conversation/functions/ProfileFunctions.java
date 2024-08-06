@@ -38,16 +38,13 @@ public class ProfileFunctions {
             profileDto.setImageUrls(null);
             profileDto.setUsername(UUID.randomUUID().toString());
             log.info("*****saving profile "+profileDto.toString());
-            return profileService
-                    .saveProfile(profileDto)
-                    .doOnSuccess(saved -> {
-                        Mono.fromCallable(() -> profileService.generateAndSaveImage(saved))
-                                .subscribeOn(Schedulers.boundedElastic())
-                                .subscribe();
-                    })
-                    .block();
-                    //Code wise this is correct but does not work because ollama does not support Async function calling yet
-                    //.then(Mono.just(profileDto));
+            Profile saved = profileService.saveProfile(profileDto).block();
+            if(saved!=null) {
+                profileService.generateAndSaveImage(saved)
+                        .subscribeOn(Schedulers.boundedElastic())
+                        .subscribe();
+            }
+            return saved;
         };
     }
 }
