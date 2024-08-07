@@ -14,6 +14,12 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import axios from 'axios';
+import Cookies from 'js-cookie';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 const pages = ['HOME', 'AI-CHAT', 'GENERATE-AI-FRIENDS'];
 const settings = ['My Profile', 'Logout'];
@@ -24,6 +30,9 @@ function AppBarTop() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
+  const [csrf, setCsrf] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -44,6 +53,29 @@ function AppBarTop() {
     };
     setAnchorElNav(null);
     navigate(pageToRoute[pages]);
+  };
+
+  const handleProfileMenu = async (setting) => {
+    if (setting === 'Logout') {
+      window.location.href = '/logout';
+    //   const csrfToken=Cookies.get('XSRF-TOKEN');
+    //   setCsrf(csrfToken);
+    //   setOpenDialog(true);
+    //   const payload = {
+    //     _csrf: csrfToken,
+    // };
+    // console.log(csrfToken);
+    //   try {
+    //     var response = await axios.post('/logout', payload, {}
+    //     );
+    //     console.log(response);
+    //   }
+    //   catch (e) {
+    //     if (e.response) {
+    //       console.log(e.response.data);
+    //     }
+    //   }
+    }
   };
 
   const handleCloseUserMenu = () => {
@@ -165,7 +197,7 @@ function AppBarTop() {
               (<Box sx={{ flexGrow: 0 }}>
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt ={user.firstName} src='random'/>
+                    <Avatar alt={user.firstName} src='random' />
                   </IconButton>
                 </Tooltip>
                 <Menu
@@ -186,12 +218,13 @@ function AppBarTop() {
                 >
                   {settings.map((setting) => (
                     <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                      <Typography textAlign="center">{setting}</Typography>
+                      <Typography textAlign="center" onClick={() => handleProfileMenu(setting)}>{setting}</Typography>
                     </MenuItem>
                   ))}
                 </Menu>
               </Box>)}
           </Toolbar>
+          
         </Container>
       </AppBar>
     </>
