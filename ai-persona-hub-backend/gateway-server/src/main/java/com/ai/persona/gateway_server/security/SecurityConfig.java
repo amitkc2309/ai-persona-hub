@@ -48,6 +48,7 @@ public class SecurityConfig {
                                 .anyExchange().authenticated())
                 .oauth2Login(Customizer.withDefaults())
                 .logout(logout -> logout
+                        .logoutHandler(logoutHandler())
                         .logoutSuccessHandler(keyCloakLogoutHandler(clientRegistrationRepository)))
                 //.csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .csrf(csrf -> csrf

@@ -57,24 +57,9 @@ function AppBarTop() {
 
   const handleProfileMenu = async (setting) => {
     if (setting === 'Logout') {
-      window.location.href = '/logout';
-    //   const csrfToken=Cookies.get('XSRF-TOKEN');
-    //   setCsrf(csrfToken);
-    //   setOpenDialog(true);
-    //   const payload = {
-    //     _csrf: csrfToken,
-    // };
-    // console.log(csrfToken);
-    //   try {
-    //     var response = await axios.post('/logout', payload, {}
-    //     );
-    //     console.log(response);
-    //   }
-    //   catch (e) {
-    //     if (e.response) {
-    //       console.log(e.response.data);
-    //     }
-    //   }
+      const csrfToken = Cookies.get('XSRF-TOKEN');
+      setCsrf(csrfToken);
+      setOpenDialog(true);
     }
   };
 
@@ -224,8 +209,30 @@ function AppBarTop() {
                 </Menu>
               </Box>)}
           </Toolbar>
-          
         </Container>
+        <Dialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description">
+          <DialogTitle id="alert-dialog-title">{"Confirm Logout"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure you want to Logout?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDialog(false)} variant="contained" color="primary">
+              Cancel
+            </Button>
+            <form method="post" action="/logout">
+              <input type="hidden" name="_csrf" value={csrf} />
+              <Button type="submit" color="primary" variant="contained" autoFocus>
+                Confirm
+              </Button>
+            </form>
+          </DialogActions>
+        </Dialog>
       </AppBar>
     </>
   );
