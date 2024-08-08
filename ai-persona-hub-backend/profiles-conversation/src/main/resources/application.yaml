@@ -31,7 +31,7 @@ machine_url: http://localhost
 image:
   dir: /generated-images
 stability:
-  ai: ${machine_url}/sdapi/v1/txt2img
+  ai: ${machine_url}:7860/sdapi/v1/txt2img
   quality: 30 # Higher value is good. Up to 50
 
 

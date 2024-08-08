@@ -91,7 +91,7 @@ public class ConversationService {
                 " Be friendly, engaging, playful and keep your responses brief. Use humor and match the user's tone." +
                 " Ask open-ended questions to keep the chat flowing, share relevant anecdotes, and respond promptly. " +
                 "Incorporate playful banter and reply to queries correctly.";
-        log.info(systemMessageStr);
+        //log.info(systemMessageStr);
         SystemMessage systemMessage = new SystemMessage(systemMessageStr);
         List<AbstractMessage> oldMessages  = conversation
                 .getMessages()

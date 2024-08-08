@@ -15,7 +15,7 @@ CPU run->
 docker-compose -f docker-compose-ollama-cpu.yaml up -d
 OR
 To Run on GPU
-1.Download Nvidia CUDA from https://developer.nvidia.com/cuda-toolkit
+1.Download Nvidia CUDA from https://developer.nvidia.com/cuda-toolkit  and cudnn
 2. Add below in Docker config file so Docker can access Nvidia
 "runtimes": {
     "nvidia": {

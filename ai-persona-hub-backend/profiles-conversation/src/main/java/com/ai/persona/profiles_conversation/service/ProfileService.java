@@ -115,8 +115,10 @@ public class ProfileService {
         log.info("****STABILITY_AI=" + CommonConstants.getStabilityAi());
         log.info("****STABILITY_AI_QUALITY=" + CommonConstants.getStabilityQuality());
         log.info("*******generating image for " + profile.toString());
-        String prompt = "Photo for online bio of " + profile.getAge() + " year old," + profile.getEthnicity() + " " +
-                profile.getGender() + " with personality Type " + profile.getMyersBriggsPersonalityType();
+        String prompt = "Online profile picture of a " + profile.getAge() + " year old," + profile.getEthnicity() + " " +
+                profile.getGender() + " with personality Type " + profile.getMyersBriggsPersonalityType()+". Photorealistic" +
+                " skin texture and details, individual hairs and pores visible, highly detailed, photorealistic, hyperrealistic, " +
+                "subsurface scattering, 4k DSLR, ultrarealistic, best quality, masterpiece. Bio: "+profile.getBio();
         log.info("*******prompt for generating image " + prompt);
         String negativePrompt = "multiple faces, lowres, text, error, cropped, worst quality, low quality, " +
                 "jpeg artifacts, ugly,flat nose, duplicate, morbid, mutilated, out of frame, extra fingers, mutated hands, " +
