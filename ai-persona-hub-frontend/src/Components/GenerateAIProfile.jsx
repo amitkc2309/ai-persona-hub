@@ -1,7 +1,6 @@
 import { Avatar, Box, Button, Card, CardContent, CardHeader, CircularProgress, InputLabel, LinearProgress, MenuItem, Select, TextField, Typography } from "@mui/material";
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useState } from "react";
-import config from "../config.json"
 import axios from "axios";
 import Cookies from 'js-cookie';
 

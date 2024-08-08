@@ -9,13 +9,12 @@ import CardMedia from '@mui/material/CardMedia';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { Box, CircularProgress, LinearProgress } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import config from "../config.json"
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import Cookies from 'js-cookie';
 
 export default function RandomProfile() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [randomProfile, setRandomProfile] = useState(null);
   const [error, setError] = useState(null);
   const [matched, setMatched] = useState(false);
@@ -25,7 +24,12 @@ export default function RandomProfile() {
     navigate('/chat', { state: { selectedprofile: randomProfile } });
   };
 
-  const handlegetRandomProfile = async () => {
+  const handlegetRandomProfile = async () => { 
+    if(location.state?.viewprofile){
+      setRandomProfile(location.state.viewprofile);
+      location.state.viewprofile=null;
+      return;
+    }
     setRandomProfile(null);
     setLoading(true);
     try {

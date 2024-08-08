@@ -22,7 +22,6 @@ import AppBarTop from "./AppBarTop"
 import { Card, CardActions, CardContent, CardHeader, Divider, Tooltip } from '@mui/material';
 import { Chat } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import config from "../config.json"
 import axios from 'axios';
 
 export default function FriendList() {
@@ -62,8 +61,9 @@ export default function FriendList() {
         navigate('/chat', { state: { selectedprofile: friend } });
     };
 
-    const goToProfile = () => {
-        navigate('/', { state: { data: 'example data' } });
+    const goToProfile = (id) => {
+        const friend = friends.find(f => f.id === id);
+        navigate('/', { state: { viewprofile: friend } });
     };
 
     return (
@@ -90,7 +90,7 @@ export default function FriendList() {
                             <React.Fragment key={id}>
                                 <Card sx={{ mb: 1, borderRadius: '16px', boxShadow: 4 }}>
                                     <ListItemButton sx={{ position: 'relative', '&:hover .chat-icon': { opacity: 1 } }}
-                                        onClick={goToProfile}>
+                                        onClick={()=>goToProfile(id)}>
                                         <ListItemAvatar>
                                             {imageUrls && (<Avatar src={`/profiles/image/${id}`} />)}
                                             {!imageUrls && (<Avatar alt={firstName} src="static" />)}
