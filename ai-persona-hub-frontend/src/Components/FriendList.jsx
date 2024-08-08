@@ -58,8 +58,9 @@ export default function FriendList() {
     }, []);
 
     const goToChat = () => {
-        navigate('/chat', { state: { data: 'example data' } });
+        navigate('/chat', { state: { selectedprofile: friends } });
     };
+
     const goToProfile = () => {
         navigate('/', { state: { data: 'example data' } });
     };
@@ -98,7 +99,7 @@ export default function FriendList() {
                                             sx={{ ml: 2 }} />
                                     </ListItemButton>
                                     <CardActions sx={{justifyContent:'right'}}>
-                                        <IconButton aria-label="chat" onClick={goToChat} 
+                                        <IconButton aria-label="chat" onClick={()=>goToChat(friends.map)} 
                                         sx={{ color: theme => theme.palette.primary.main,}}>
                                             <Chat />
                                         </IconButton>
