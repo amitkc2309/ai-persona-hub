@@ -57,8 +57,9 @@ export default function FriendList() {
         getAIFriends();
     }, []);
 
-    const goToChat = () => {
-        navigate('/chat', { state: { selectedprofile: friends } });
+    const goToChat = (id) => {
+        const friend = friends.find(f => f.id === id);
+        navigate('/chat', { state: { selectedprofile: friend } });
     };
 
     const goToProfile = () => {
@@ -85,21 +86,21 @@ export default function FriendList() {
                 }}>
                     {((friends && friends.length>0) && 
                     <List sx={{ border: 'none', boxShadow: 'none', m: .5 }}>
-                        {friends.map(({ id, firstName, lastName, age, bio }) => (
+                        {friends.map(({ id, firstName, lastName, age, bio, imageUrls }) => (
                             <React.Fragment key={id}>
                                 <Card sx={{ mb: 1, borderRadius: '16px', boxShadow: 4 }}>
                                     <ListItemButton sx={{ position: 'relative', '&:hover .chat-icon': { opacity: 1 } }}
                                         onClick={goToProfile}>
                                         <ListItemAvatar>
-                                            <Avatar alt="Profile Picture"
-                                                src={`/profiles/image/${id}`} />
+                                            {imageUrls && (<Avatar src={`/profiles/image/${id}`} />)}
+                                            {!imageUrls && (<Avatar alt={firstName} src="static" />)}
                                         </ListItemAvatar>
                                         <ListItemText primary={`${firstName} ${lastName}`}
                                             secondary={bio.length > 50 ? `${bio.slice(0, 150)} ...` : bio}
                                             sx={{ ml: 2 }} />
                                     </ListItemButton>
                                     <CardActions sx={{justifyContent:'right'}}>
-                                        <IconButton aria-label="chat" onClick={()=>goToChat(friends.map)} 
+                                        <IconButton aria-label="chat" onClick={()=>goToChat(id)} 
                                         sx={{ color: theme => theme.palette.primary.main,}}>
                                             <Chat />
                                         </IconButton>

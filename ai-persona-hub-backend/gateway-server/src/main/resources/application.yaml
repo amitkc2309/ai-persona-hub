@@ -64,11 +64,13 @@ spring:
             redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
         provider:
           keycloak:
-            issuer-uri: "http://localhost:7080/realms/ai-persona-hub"
+            issuer-uri: "${machine_url}:7080/realms/ai-persona-hub"
 
 #frontEnd
 front_end:
-  url: http://192.168.1.53:5173
+  url: ${machine_url}:5173
+
+machine_url: http://localhost
 
 #Actuator with readiness and liveness
 management:
@@ -102,4 +104,4 @@ eureka:
     fetchRegistry: true
     registerWithEureka: true
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${machine_url}:8761/eureka/

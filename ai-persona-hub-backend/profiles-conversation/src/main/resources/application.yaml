@@ -13,23 +13,25 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: "http://localhost:7080/realms/ai-persona-hub/protocol/openid-connect/certs"
+          jwk-set-uri: "${machine_url}:7080/realms/ai-persona-hub/protocol/openid-connect/certs"
 
   #Ollama
   ai:
     ollama:
-      base-url: http://localhost:11434
+      base-url: ${machine_url}:11434
       chat:
         options:
           temperature: 0.7
           model: llama3.1:latest #mistral
 
-keycloak_url: http://localhost:7080
+keycloak_url: ${machine_url}:7080
+
+machine_url: http://localhost
 
 image:
   dir: /generated-images
 stability:
-  ai: http://localhost:7860/sdapi/v1/txt2img
+  ai: ${machine_url}/sdapi/v1/txt2img
   quality: 30 # Higher value is good. Up to 50
 
 
@@ -64,4 +66,4 @@ eureka:
     fetchRegistry: true
     registerWithEureka: true
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${machine_url}:8761/eureka/
