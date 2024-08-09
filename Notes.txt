@@ -111,6 +111,8 @@ rm -rf .git
   
 Note: To save memory issue, run ollama via setp (outside docker).
 
+download model dreamshaper_8 (faster) or jibMixRealisticXL_v120TheLastHuzzah (better but slower) from https://civitai.com/ and put it on path ai-persona-hub-docker\stability-ai\data\models\Stable-diffusion. It is a very nice model to create humans
+
 -------------------------------FrontEnd-------------------
 create-react-app is not recommended anymore so use vite to create react-app
 

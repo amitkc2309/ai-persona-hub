@@ -24,7 +24,7 @@ services:
     image: ai-persona-stable-diffusion # this images will be created once build has been run
     container_name: ai-persona-stable-diffusion-gpu
     environment:
-      - CLI_ARGS=--allow-code --medvram --xformers --enable-insecure-extension-access --api
+      - CLI_ARGS=--allow-code --medvram --xformers --enable-insecure-extension-access --api --lowram
     deploy:
       resources:
         reservations:
