@@ -46,6 +46,7 @@ explorer %TEMP% where temporary executable files are stored in one or more ollam
 
 ---------
 stability-ai->
+Docker version must be 4.31.or above
 https://github.com/AbdBarho/stable-diffusion-webui-docker
 API-Docs->https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/API
 

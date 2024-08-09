@@ -30,8 +30,10 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              count: all
+              device_ids: ['0']
               capabilities:
+                - compute
+                - utility
                 - gpu
   auto-cpu:
     <<: *automatic
