@@ -9,6 +9,8 @@
 div.kc-logo-custom {
     background-image: url(../img/my-logo.PNG);
     background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
     height: 110px;
     width: 400px;
     margin: 0 auto;

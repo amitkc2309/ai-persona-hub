@@ -39,7 +39,7 @@ spring:
   data:
     redis:
       connect-timeout: 2s
-      host: localhost
+      host: ${machine_url}
       port: 6379
       timeout: 1s
 
@@ -61,16 +61,16 @@ spring:
             client-secret: TlLtZyrPPmoLIGcXEjfbyBd1gQDDYd3o
             scope: openid,email,profile,roles
             authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
+#            redirect-uri: "${machine_url}/login/oauth2/code/keycloak"
         provider:
           keycloak:
-            issuer-uri: "${machine_url}:7080/realms/ai-persona-hub"
+            issuer-uri: "http://${machine_url}:7080/realms/ai-persona-hub"
 
 #frontEnd
 front_end:
-  url: ${machine_url}:5173
+  url: http://${machine_url}:5173
 
-machine_url: http://localhost
+machine_url: localhost
 
 #Actuator with readiness and liveness
 management:
@@ -104,4 +104,4 @@ eureka:
     fetchRegistry: true
     registerWithEureka: true
     serviceUrl:
-      defaultZone: ${machine_url}:8761/eureka/
+      defaultZone: http://${machine_url}:8761/eureka/
