@@ -92,9 +92,11 @@ management:
 
 logging:
   level:
+    root: ERROR
     org:
       springframework:
-        security: DEBUG
+        security: ERROR
+        boot: INFO
 
 #For service discovery
 eureka:

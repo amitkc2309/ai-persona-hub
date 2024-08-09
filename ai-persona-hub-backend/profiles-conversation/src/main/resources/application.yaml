@@ -35,12 +35,14 @@ stability:
   quality: 30 # Higher value is good. Up to 50
 
 
-#logging:
-#  level:
-#    org:
-#      springframework:
-#        data:
-#          mongodb: DEBUG
+logging:
+  level:
+    root: ERROR
+    org:
+      springframework:
+        data:
+          mongodb: ERROR
+        boot: INFO
 
 #Actuator with readiness and liveness
 management:
