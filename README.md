@@ -4,7 +4,7 @@ AI-Persona-Hub is a Spring framework based AI project that enables users to crea
 engage in conversations with them. The entire application is designed to run locally, eliminating the need for any paid 
 AI services like ChatGPT. It utilizes Spring-AI to connect with a locally hosted Ollama model.
 
-The code is developed using Java with Spring Boot, Spring WebFlux (for reactive programming), Hibernate, and React.js, and is deployed with Docker using a Microservices Architecture.
+The code is developed using Java with Spring Boot, Spring AI, Spring cloud, Spring Security with OAuth2, Spring WebFlux, Reactive programming, Hibernate and React.js. It is based on Microservices Architecture and deployed on Docker.
 
 ![Profile](samples/Generated-Profile.jpg)
 ![chat](samples/Chat.jpg)
