@@ -179,7 +179,7 @@ Create a new Client
 Go in REALM roles and create a new Role
 Go in Reakm settings -> Login Tab and activate User registration
 Include Roles in the Token:
-	Go to your client->Client scopes tab-> <your_client>_dedicated->scope tab-> Full scope allowed
+	Go to your client->Client scopes tab-> <your_client>_dedicated->scope tab-> Activate Full scope allowed
 	Navigate to Client Scopes and select the "roles" from list
 	Go to the Mappers tab->realm roles->Add to ID token
 Realm settings ->User registration Tab -> Assign Role which you want user to have whenever a new user registers (will be visible as inherited roles in user's role mapping tab)
