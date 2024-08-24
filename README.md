@@ -32,7 +32,7 @@ scalability and easy maintenance.
 - **Containerized**: Docker-compose file has been provided to quickly start the application.
 
 ## Setup and Running on Local
-- Download [Ollama](https://ollama.com/) for your OS. Then, go to Models and download **llama3.1** model. We need this so user can chat with AI/bots and to generrate AI profiles. Remember to downnload model which has *Tools* support.
+- Download [Ollama](https://ollama.com/) for your OS. Then, go to Models and download **llama3.1** model. We need this so user can chat with AI/bots and to generrate AI profiles. Remember to download model which has *Tools* support.
 - To generate AI profile images we need a image generation model. We have used [Automatic1111](https://github.com/AUTOMATIC1111/stable-diffusion-webui) for the same. Follow the instruction given on the github page to start stable-diffusion on local. It is recommended to run it on system having NVIDIA GPU.
 - We call stable-diffusion's API to generate images from our spring code, so make sure that you start stable diffusion with `--api` command line argument. For windows OS, you can set `COMMANDLINE_ARGS=--api` in `webui-user.bat` file to achieve this.
 - Download Docker
