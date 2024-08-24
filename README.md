@@ -32,10 +32,11 @@ scalability and easy maintenance.
 - **Containerized**: Docker-compose file has been provided to quickly start the application.
 
 ## Setup and Running on Local
-- Download [Ollama](https://ollama.com/) for your OS. Then, go to Models and download **llama3.1** model. We need this so user can chat with AI/bots and to generrate AI profiles. Remember to download model which has *Tools* support.
-- To generate AI profile images we need a image generation model. We have used [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) for the same. Follow the instruction given on the github page to start stable-diffusion on local. It is recommended to run it on system having NVIDIA GPU.  **Note**: You may choose to skip setup of stable-diffusion and the application will still start and run but profile images will not be generated.
+- Download [Ollama](https://ollama.com/) for your OS. On the same page, go to Models and download and install **llama3.1** model. We need this so user can chat with AI/bots and to generrate AI profiles. Remember to download model which has *Tools* support. Start Ollama on local.
+- To generate AI profile images we need a image generation model. We have used [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) for the same. Follow the instruction given on the github page to start stable-diffusion on local. It is recommended to run it on system having NVIDIA GPU.  
+**Note**: You may choose to skip setup of stable-diffusion and the application will still start and run normally but profile images will not be generated.
 - We call stable-diffusion's API to generate images from our spring code, so make sure that you start stable diffusion with `--api` command line argument. For windows OS, you can set `COMMANDLINE_ARGS=--api` in `webui-user.bat` file to achieve this.
-- Download Docker
+- Download and start Docker on your system.
 - **Keycloak Configuration**
     -  Go to `ai-persona-hub/ai-persona-hub-docker/` and run command `docker compose up -d keycloak`. It will start keycloak on docker.
     - Go to [Keycloak Admin Console](http://localhost:7080/admin/master/console/) and login using admin/admin credentials.
