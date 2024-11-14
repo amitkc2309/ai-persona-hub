@@ -1,0 +1,10 @@
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 4.0.2
+
+#spring:
+#  security:
+#    enabled: false
+
