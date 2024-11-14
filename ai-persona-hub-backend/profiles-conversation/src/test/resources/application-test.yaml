@@ -8,3 +8,7 @@ de:
 #  security:
 #    enabled: false
 
+eureka:
+  client:
+    enabled: false
+
