@@ -7,10 +7,7 @@ import com.ai.persona.profiles_conversation.repository.ProfileRepository;
 import com.ai.persona.profiles_conversation.service.ProfileService;
 import com.ai.persona.profiles_conversation.utils.SecurityUtils;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,6 +22,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 
 @SpringBootTest(
         properties = "spring.profiles.active=test", // Will read application-test.yaml
@@ -67,7 +66,7 @@ public class ProfileControllerTest {
     }
 
     @Test
-    void testSaveProfileViaController(){
+    void testSaveProfileViaController() {
         ProfileDto profileDto = new ProfileDto();
         profileDto.setId("controller-id");
         profileDto.setEmail("controller@example.com");
@@ -84,7 +83,7 @@ public class ProfileControllerTest {
                 .exchange()
                 .expectStatus().isCreated() //check for 201
                 .expectBody(ProfileDto.class)
-                .value(saved->{
+                .value(saved -> {
                     createdProfileId.set(saved.getId()); // Store ID for deletion
                     assertThat(saved.getId()).isNotEmpty();
                     assertThat(saved.getEmail()).isEqualTo("controller@example.com");
@@ -96,49 +95,13 @@ public class ProfileControllerTest {
         //delete test
         webTestClient
                 .delete()
-                .uri("/profiles/{profileId}",createdProfileId.get())
+                .uri("/profiles/{profileId}", createdProfileId.get())
                 .exchange()
                 .expectStatus().isOk();
-
     }
 
-    //@Test
-    @WithMockUser("testUser")
-    void testMatchedProfile() {
-            assertThat(SecurityUtils.getUsername()).isEqualTo("testUser");
-        // Create Profile 1 (the user that will match the profile)
-            ProfileDto profile1 = new ProfileDto();
-            profile1.setUsername("testUser");
-            profile1.setFirstName("firstName");
-            profile1.setLastName("lastName");
-            profile1.setEmail("testUser@example.com");
-            Profile savedProfile1 = profileService.saveProfile(profile1).block();
-
-            // Create Profile 2 (the profile to be matched)
-            ProfileDto profile2 = new ProfileDto();
-            profile2.setUsername("matchedUser");
-            profile2.setEmail("matchedUser@example.com");
-            Profile savedProfile2 = profileService.saveProfile(profile2).block();
-
-            // Ensure profiles are saved correctly
-            assertThat(savedProfile1).isNotNull();
-            assertThat(savedProfile2).isNotNull();
-
-            // Test the match logic
-
-            webTestClient.put()
-                    .uri("/profiles/match/{matchedId}",savedProfile2.getId())
-                    .exchange()
-                    .expectStatus().isOk()
-                    .expectBody(ProfileDto.class)
-                    .value(responseProfile -> {
-                        assertThat(responseProfile.getUsername()).isEqualTo("testUser");
-                        assertThat(responseProfile.getMatchedProfiles()).contains(savedProfile2.getId());
-                    });
-        }
-
-        @Test
-        void securityContextAuthTest() {
+    @Test
+    void securityContextAuthTest() {
         Authentication mockAuth = mock(Authentication.class);
         when(mockAuth.isAuthenticated()).thenReturn(true);
         when(mockAuth.getName()).thenReturn("testUser"); // Return the username
@@ -151,7 +114,7 @@ public class ProfileControllerTest {
 
     @Test
     void getCurrentDummyLoggedUserTest() {
-        try(var mocked=mockStatic(SecurityUtils.class)){ //This is how you mock static methods
+        try (var mocked = mockStatic(SecurityUtils.class)) { //This is how you mock static methods
             mocked.when(SecurityUtils::getUsername).thenReturn("testUser");
             assertThat(SecurityUtils.getUsername()).isEqualTo("testUser");
         }

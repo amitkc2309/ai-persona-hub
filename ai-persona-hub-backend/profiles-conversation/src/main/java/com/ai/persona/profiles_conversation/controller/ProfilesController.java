@@ -78,7 +78,7 @@ public class ProfilesController {
     public Flux<ResponseEntity<ProfileDto>> getAllBots() {
         return profileService
                 .getAllBots()
-                .map(saved->{
+                .map(saved -> {
                     ProfileDto profileDto = new ProfileDto();
                     BeanUtils.copyProperties(saved, profileDto);
                     return ResponseEntity.ok(profileDto);
@@ -89,7 +89,7 @@ public class ProfilesController {
     public Flux<ResponseEntity<ProfileDto>> getAllMatchedBots() {
         return profileService
                 .getAllMatchedBots()
-                .map(saved->{
+                .map(saved -> {
                     ProfileDto profileDto = new ProfileDto();
                     BeanUtils.copyProperties(saved, profileDto);
                     return ResponseEntity.ok(profileDto);
@@ -166,7 +166,7 @@ public class ProfilesController {
         Integer age = randomProfileInputDto.getAge();
         String ethnicity = randomProfileInputDto.getEthnicity();
         Gender gender = randomProfileInputDto.getGender();
-        String response = profileService.generateRandomBotProfile(gender,age,ethnicity);
+        String response = profileService.generateRandomBotProfile(gender, age, ethnicity);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -184,7 +184,7 @@ public class ProfilesController {
     public Mono<ResponseEntity<ProfileDto>> addMatchedProfile(@PathVariable String matchedId) {
         return profileService
                 .addMatchedProfileToUser(matchedId)
-                .map(updatedUser->{
+                .map(updatedUser -> {
                     ProfileDto profileDto = new ProfileDto();
                     BeanUtils.copyProperties(updatedUser, profileDto);
                     return ResponseEntity.ok(profileDto);
