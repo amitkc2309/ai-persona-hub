@@ -11,20 +11,16 @@ import com.ai.persona.profiles_conversation.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.ai.chat.messages.*;
-import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.ollama.OllamaChatModel;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -56,7 +52,7 @@ public class ConversationService {
         return conversationRepository.save(conversation);
     }
 
-    public Mono<Conversation> addMessageToConversation(String conversationId, ChatMessage chatMessage,String profile) {
+    public Flux<ChatMessage> addMessageToConversation(String conversationId, ChatMessage chatMessage, String profile) {
         String username = SecurityUtils.getUsername();
         String firstName = SecurityUtils.getClaimAsString("given_name");
         String lastName = SecurityUtils.getClaimAsString("family_name");
@@ -65,15 +61,31 @@ public class ConversationService {
         user.setLastName(lastName);
         return this
                 .getConversationById(conversationId)
-                .flatMap(conversation -> {
+                .flatMapMany(conversation -> {
                     chatMessage.setMessageTime(LocalDateTime.now());
                     chatMessage.setSenderProfile(username);
                     conversation.getMessages().add(chatMessage);
                     return profileRepository
                             .findByUsername(profile)
-                            .flatMap(savedProfile->{
-                                Conversation responseFromAI = getResponseFromAI(conversation, savedProfile, user);
-                                return conversationRepository.save(responseFromAI);
+                            .flatMapMany(savedProfile -> {
+                                ChatMessage chatMessage2=new ChatMessage();
+                                int lastId=0;
+                                if(!conversation.getMessages().isEmpty())
+                                    lastId= Integer.parseInt(conversation.getMessages().getLast().getId());
+                                chatMessage2.setId(String.valueOf(lastId+1));
+                                chatMessage2.setMessageText("");
+                                chatMessage2.setSenderProfile(savedProfile.getUsername());
+                                chatMessage2.setMessageTime(LocalDateTime.now());
+                                return getResponseFromAI(conversation, savedProfile, user)
+                                        .doOnNext(part -> {
+                                            chatMessage2.setMessageText(chatMessage2.getMessageText()+part);
+                                        })
+                                        .map(part -> chatMessage2) // Emit the updated ChatMessage
+                                        // and save it after completion
+                                        .doFinally(signalType -> {
+                                            conversation.getMessages().add(chatMessage2);
+                                            conversationRepository.save(conversation).subscribe();
+                                        });
                             });
                 });
     }
@@ -81,7 +93,7 @@ public class ConversationService {
     /**
      * Chat with AI using conversation history
      */
-    public Conversation getResponseFromAI(Conversation conversation, Profile profile, ProfileDto user){
+    public Flux<String> getResponseFromAI(Conversation conversation, Profile profile, ProfileDto user){
         String systemMessageStr = "You are a " + profile.getAge() + " years old " + profile.getEthnicity() + " " + profile.getGender() +
                 " named " + profile.getFirstName() + " " + profile.getLastName()+
                 ". Your bio is: " + profile.getBio() + ". And your Myers Briggs personality type is " + profile.getMyersBriggsPersonalityType() +
@@ -107,24 +119,21 @@ public class ConversationService {
         allMessages.add(systemMessage);
         allMessages.addAll(oldMessages);
         Prompt prompt = new Prompt(allMessages);
-        ChatResponse response = ollamaChatModel.call(prompt);
+        return ollamaChatModel
+                .stream(prompt)
+                .map(chatResponse -> chatResponse.getResult().getOutput().getContent());
 
-        ChatMessage chatMessage=new ChatMessage();
-        int lastId=0;
-        if(!conversation.getMessages().isEmpty())
-            lastId= Integer.parseInt(conversation.getMessages().getLast().getId());
-        chatMessage.setId(String.valueOf(lastId+1));
-
-        //String url = "https://www.random.org/strings/?num=1&len=10&digits=on&lower=on&upper=on&unique=on&format=plain&rnd=new";
-        //ResponseEntity<String> sampleString = restTemplate.getForEntity(url, String.class);
-        //chatMessage.setMessageText(sampleString.getBody());
-
-        chatMessage.setMessageText(response.getResult().getOutput().getContent());
-        chatMessage.setSenderProfile(profile.getUsername());
-        chatMessage.setMessageTime(LocalDateTime.now());
-
-         conversation.getMessages().add(chatMessage);
-         return conversation;
     }
 
+    public String testAI(String message){
+        Prompt prompt = new Prompt(message);
+        return ollamaChatModel.call(prompt).getResult().getOutput().getContent();
+    }
+
+    public Flux<String> testAIStream(String message){
+        Prompt prompt = new Prompt(message);
+        return ollamaChatModel
+                .stream(prompt)
+                .map(chatResponse -> chatResponse.getResult().getOutput().getContent());
+    }
 }

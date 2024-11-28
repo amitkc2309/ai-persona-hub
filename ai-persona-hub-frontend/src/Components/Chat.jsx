@@ -6,6 +6,7 @@ import ChatIcon from '@mui/icons-material/Chat';
 import AppBarTop from "./AppBarTop";
 import { Box } from "@mui/material";
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 export default function Chat() {
     const location = useLocation();
@@ -18,37 +19,108 @@ export default function Chat() {
     const [typing, setTyping] = useState('');
 
     const handleSend = async () => {
-        var responseMessage = '';
-        var nextId = 0;
+        let nextId = 0;
         if (messages && messages.length > 0) {
-            var lastMessage = messages[messages.length - 1];
+            const lastMessage = messages[messages.length - 1];
             nextId = Number(lastMessage.id) + 1;
-        }
-        else {
+        } else {
             nextId = 1;
         }
+
+        const sentMessage = {
+            id: nextId,
+            messageText: sentText,
+        };
+
         try {
-            const params = {
-                profile: selectedprofile.username
+            const params = new URLSearchParams({ profile: selectedprofile.username });
+
+            // Add the user's message to the state
+            setMessages((messages) => [...messages, sentMessage]);
+            setSentText('');  // Clear the input field
+            setTyping('Typing...');  // Show typing indicator
+
+            // Get CSRF token
+            const csrfToken = Cookies.get('XSRF-TOKEN');
+
+            // Send the message to the backend and start reading the stream
+            const response = await fetch(`/conversation/${conversation.id}?${params}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-XSRF-TOKEN': csrfToken,
+                },
+                body: JSON.stringify(sentMessage),
+            });
+
+            // Ensure the response is a stream
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let aiResponseText = '';  // Initialize an empty string to accumulate the chunks
+            let buffer = '';  // Buffer to accumulate incomplete chunks
+
+            const aiMessage = {
+                id: nextId + 1, // New ID for the AI message
+                messageText: '',  // Will be progressively updated
+                senderProfile: selectedprofile.username,
             };
-            const sentMessage = {
-                id: nextId,
-                messageText: sentText,
-            };
-            setMessages(messages => [...messages, sentMessage]);
-            setSentText('');
-            setTyping("Typing....")
-            responseMessage = await axios.put(`/conversation/${conversation.id}`, sentMessage, { params });
-            setMessages(messages => [...messages, responseMessage.data]);
-            setTyping('');
-            setError(null);
-        }
-        catch (e) {
-            if (e.response) {
-                setError(e.response);
+
+            // Read the stream chunk by chunk
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                // Decode the chunk and clean it up
+                let chunk = decoder.decode(value, { stream: true });
+
+                // Remove the 'data:' prefix if it exists
+                if (chunk.startsWith('data:')) {
+                    chunk = chunk.substring(5);  // Remove the 'data:' prefix
+                }
+
+                // Add the chunk to the buffer
+                buffer += chunk;
+
+                // Try to parse the buffer as JSON
+                try {
+                    // Try parsing the buffer as JSON
+                    const jsonData = JSON.parse(buffer);
+
+                    // If successful, update the AI response
+                    aiResponseText = jsonData.messageText;
+                    aiMessage.messageText = aiResponseText;
+
+                    // Update the messages with the new part of the AI response
+                    setMessages((prevMessages) => {
+                        const updatedMessages = [...prevMessages];
+                        const aiIndex = updatedMessages.findIndex((msg) => msg.id === aiMessage.id);
+
+                        if (aiIndex >= 0) {
+                            updatedMessages[aiIndex] = { ...aiMessage };  // Update existing message
+                        } else {
+                            updatedMessages.push(aiMessage);  // Add the AI message if it's new
+                        }
+
+                        return updatedMessages;
+                    });
+
+                    // Clear the buffer after successful JSON parse
+                    buffer = '';
+                } catch (error) {
+                    // If parsing fails, continue accumulating data
+                    console.log('Buffer not yet complete, waiting for more data...');
+                }
             }
+
+            // Once the stream is finished, hide the typing indicator
+            setTyping('');
+        } catch (error) {
+            console.error('Error sending message:', error);
+            setError(error.message || 'Failed to send message.');
+            setTyping('');
         }
     };
+
 
     const loadSelectedProfileChat = async () => {
         try {
