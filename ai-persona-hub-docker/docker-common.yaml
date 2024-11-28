@@ -1,0 +1,4 @@
+services:
+  ai-persona-mongo-network-service:
+    networks:
+      - ai-persona-mongo-network

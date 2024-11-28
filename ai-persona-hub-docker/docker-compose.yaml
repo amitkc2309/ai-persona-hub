@@ -1,47 +1,4 @@
 services:
-  ai-persona-mongo:
-    image: mongo
-    container_name: ai-persona-mongo
-    environment:
-      MONGO_INITDB_DATABASE: ai-persona-mongo
-    ports:
-      - '27017:27017'
-    healthcheck:
-      test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 5s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
-    networks:
-      - ai-persona-mongo-network
-
-  redis:
-    image: redis
-    container_name: ai-persona-redis
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
-      timeout: 10s
-      retries: 10
-    networks:
-      - ai-persona-mongo-network
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:22.0.1
-    container_name: ai-persona-keycloak
-    ports:
-      - "7080:8080"
-    volumes:
-      - ./keycloak-bkp:/opt/keycloak/data
-      - ./keycloak-theme:/opt/keycloak/themes
-    environment:
-      KEYCLOAK_ADMIN: "admin"
-      KEYCLOAK_ADMIN_PASSWORD: "admin"
-    command: "start-dev"
-    networks:
-      - ai-persona-mongo-network
-
   ai-persona-discovery-server:
     container_name: ai-persona-discovery-server
     image: amitking2309/ai-persona-discovery-server
@@ -53,8 +10,9 @@ services:
       timeout: 10s
       retries: 4
       start_period: 10s
-    networks:
-      - ai-persona-mongo-network
+    extends:
+      file: docker-common.yaml
+      service: ai-persona-mongo-network-service
 
   ai-persona-profiles-conversation:
     container_name: ai-persona-profiles-conversation
@@ -83,10 +41,11 @@ services:
     depends_on:
       ai-persona-discovery-server:
         condition: service_healthy
-      ai-persona-mongo:
-        condition: service_healthy
-    networks:
-      - ai-persona-mongo-network
+#      ai-persona-mongo:
+#        condition: service_healthy
+    extends:
+      file: docker-common.yaml
+      service: ai-persona-mongo-network-service
 
   ai-persona-gateway-server:
     container_name: ai-persona-gateway-server
@@ -103,16 +62,18 @@ services:
     depends_on:
       ai-persona-profiles-conversation:
         condition: service_healthy
-    networks:
-      - ai-persona-mongo-network
+    extends:
+      file: docker-common.yaml
+      service: ai-persona-mongo-network-service
 
   ai-persona-frontend:
     container_name: ai-persona-frontend
     image: amitking2309/ai-persona-frontend
     ports:
       - "5173:80"
-    networks:
-      - ai-persona-mongo-network
+    extends:
+      file: docker-common.yaml
+      service: ai-persona-mongo-network-service
 
 networks:
   ai-persona-mongo-network:

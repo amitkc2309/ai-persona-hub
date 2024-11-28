@@ -51,7 +51,8 @@ scalability and easy maintenance.
 - You need to generate docker images for all spring-boot projects. So, go inside all three folders of `ai-persona-hub/ai-persona-hub-backend` and run `mvn compile jib:dockerBuild` command on each of them.
 - Go indside `ai-persona-hub/ai-persona-hub-frontend` and run `docker build --no-cache -t amitking2309/ai-persona-frontend .` command.
 - Go to `ai-persona-hub/ai-persona-hub-docker/.env` file and povide the IP address of your local system in environment variable `MACHINE_URL`.
-- Go to `ai-persona-hub/ai-persona-hub-docker/` and run command `docker compose up -d`. This will start the application.
+- Go to `ai-persona-hub/ai-persona-hub-docker/` and run command `docker compose -f docker-compose-infra.yaml up -d`. Wait for keycloak, Mongo and Redis containers to start.
+- Run command `docker compose up -d`. This will start the application in up to 2 minutes.
 - Application will be available on `http://<Your_System's_IPAddress>:8080/`
 - Register a new User then login
 - Now go to `Generate AI Friend` Menu and create a new AI Profile of your choice.
