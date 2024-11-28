@@ -28,7 +28,6 @@ import java.util.HashSet;
 @RequestMapping("/profiles")
 @RequiredArgsConstructor
 @Log
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ProfilesController {
 
     private final ProfileService profileService;

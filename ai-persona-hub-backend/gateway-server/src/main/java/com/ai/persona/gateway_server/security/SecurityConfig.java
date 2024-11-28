@@ -19,12 +19,8 @@ import org.springframework.security.web.server.csrf.CookieServerCsrfTokenReposit
 import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
-import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
-
-import java.util.Collections;
-import java.util.List;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -32,13 +28,7 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain filterChain(ServerHttpSecurity http,
                                               ReactiveClientRegistrationRepository clientRegistrationRepository) {
-        return http.cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Collections.singletonList("*"));
-                    config.setAllowedMethods(Collections.singletonList("*"));
-                    config.setAllowedHeaders(Collections.singletonList("*"));
-                    return config;
-                }))
+        return http
                 .authorizeExchange(exchange ->
                         exchange.pathMatchers("/logout/**").permitAll()
                                 .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
