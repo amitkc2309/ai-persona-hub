@@ -37,7 +37,7 @@ export default function Chat() {
 
             // Add the user's message to the state
             setMessages((messages) => [...messages, sentMessage]);
-            setSentText('');  // Clear the input field
+            setSentText('');
             setTyping('Typing...');  // Show typing indicator
 
             // Get CSRF token
@@ -56,12 +56,12 @@ export default function Chat() {
             // Ensure the response is a stream
             const reader = response.body.getReader();
             const decoder = new TextDecoder('utf-8');
-            let aiResponseText = '';  // Initialize an empty string to accumulate the chunks
-            let buffer = '';  // Buffer to accumulate incomplete chunks
+            let aiResponseText = '';
+            let buffer = '';
 
             const aiMessage = {
-                id: nextId + 1, // New ID for the AI message
-                messageText: '',  // Will be progressively updated
+                id: nextId + 1,
+                messageText: '',
                 senderProfile: selectedprofile.username,
             };
 
@@ -72,24 +72,15 @@ export default function Chat() {
 
                 // Decode the chunk and clean it up
                 let chunk = decoder.decode(value, { stream: true });
-
+                //console.log("chunk=>"+chunk);
                 // Remove the 'data:' prefix if it exists
                 if (chunk.startsWith('data:')) {
-                    chunk = chunk.substring(5);  // Remove the 'data:' prefix
+                    chunk = chunk.substring(5);
                 }
-
-                // Add the chunk to the buffer
                 buffer += chunk;
-
-                // Try to parse the buffer as JSON
                 try {
-                    // Try parsing the buffer as JSON
-                    const jsonData = JSON.parse(buffer);
-
-                    // If successful, update the AI response
-                    aiResponseText = jsonData.messageText;
-                    aiMessage.messageText = aiResponseText;
-
+                    setTyping('');
+                    aiMessage.messageText = buffer;
                     // Update the messages with the new part of the AI response
                     setMessages((prevMessages) => {
                         const updatedMessages = [...prevMessages];
@@ -103,17 +94,11 @@ export default function Chat() {
 
                         return updatedMessages;
                     });
-
-                    // Clear the buffer after successful JSON parse
-                    buffer = '';
                 } catch (error) {
                     // If parsing fails, continue accumulating data
                     console.log('Buffer not yet complete, waiting for more data...');
                 }
             }
-
-            // Once the stream is finished, hide the typing indicator
-            setTyping('');
         } catch (error) {
             console.error('Error sending message:', error);
             setError(error.message || 'Failed to send message.');

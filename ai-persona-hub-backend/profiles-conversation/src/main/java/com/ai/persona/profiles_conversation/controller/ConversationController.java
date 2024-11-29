@@ -44,11 +44,12 @@ public class ConversationController {
     }
 
     /**
-     * produces = MediaType.TEXT_EVENT_STREAM_VALUE is must
-     * @return
+     * produces = MediaType.TEXT_EVENT_STREAM_VALUE is helpful for streaming on POSTMAN, But It returns data with
+     * prefix "data" like "data: {} "
      */
-    @PutMapping(value = "/{conversationId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ChatMessage> addMessageToConversation(@PathVariable String conversationId,
+    /*@PutMapping(value = "/{conversationId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)*/
+    @PutMapping("/{conversationId}")
+    public Flux<String> addMessageToConversation(@PathVariable String conversationId,
                                                                @RequestBody ChatMessage chatMessage,
                                                                @RequestParam String profile) {
         return conversationService
@@ -63,6 +64,8 @@ public class ConversationController {
 
     /**
      * Streaming can be seen on browser.
+     * produces = MediaType.TEXT_EVENT_STREAM_VALUE is helpful for streaming onn POSTMAN, But It returns data with
+     * prefix "data" like "data: {} "
      */
 
     @GetMapping(value = "/test-ai-stream",produces = MediaType.TEXT_EVENT_STREAM_VALUE)

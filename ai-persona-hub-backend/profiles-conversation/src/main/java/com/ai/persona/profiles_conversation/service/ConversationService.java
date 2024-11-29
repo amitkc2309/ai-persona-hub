@@ -52,7 +52,7 @@ public class ConversationService {
         return conversationRepository.save(conversation);
     }
 
-    public Flux<ChatMessage> addMessageToConversation(String conversationId, ChatMessage chatMessage, String profile) {
+    public Flux<String> addMessageToConversation(String conversationId, ChatMessage chatMessage, String profile) {
         String username = SecurityUtils.getUsername();
         String firstName = SecurityUtils.getClaimAsString("given_name");
         String lastName = SecurityUtils.getClaimAsString("family_name");
@@ -80,7 +80,7 @@ public class ConversationService {
                                         .doOnNext(part -> {
                                             chatMessage2.setMessageText(chatMessage2.getMessageText()+part);
                                         })
-                                        .map(part -> chatMessage2) // Emit the updated ChatMessage
+                                        //.map(part -> chatMessage2)
                                         // and save it after completion
                                         .doFinally(signalType -> {
                                             conversation.getMessages().add(chatMessage2);
