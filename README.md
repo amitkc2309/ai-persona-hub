@@ -50,7 +50,7 @@ scalability and easy maintenance.
     - Go to Realm settings ->User registration Tab -> Assign Role(AI-PERSONA) which you want user to have whenever a new user registers (It will be visible as inherited roles in user's role mapping tab)
 - You need to generate docker images for all spring-boot projects. So, go inside all three folders of `ai-persona-hub/ai-persona-hub-backend` and run `mvn compile jib:dockerBuild` command on each of them.
 - Go indside `ai-persona-hub/ai-persona-hub-frontend` and run `docker build --no-cache -t amitking2309/ai-persona-frontend .` command.
-- Go to `ai-persona-hub/ai-persona-hub-docker/.env` file and povide the IP address of your local system in environment variable `MACHINE_URL`.
+- Go to `ai-persona-hub/ai-persona-hub-docker/` and create an .env file and provide the IP address of your local system in environment variable `MACHINE_URL`, like `MACHINE_URL=111.111.11.11`
 - Go to `ai-persona-hub/ai-persona-hub-docker/` and run command `docker compose -f docker-compose-infra.yaml up -d`. Wait for keycloak, Mongo and Redis containers to start.
 - Run command `docker compose up -d`. This will start the application in up to 2 minutes.
 - Application will be available on `http://<Your_System's_IPAddress>:8080/`
