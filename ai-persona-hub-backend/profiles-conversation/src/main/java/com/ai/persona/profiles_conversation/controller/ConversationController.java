@@ -1,12 +1,10 @@
 package com.ai.persona.profiles_conversation.controller;
 
-import com.ai.persona.profiles_conversation.dto.ConversationDto;
 import com.ai.persona.profiles_conversation.dto.ChatMessage;
+import com.ai.persona.profiles_conversation.dto.ConversationDto;
 import com.ai.persona.profiles_conversation.service.ConversationService;
 import com.ai.persona.profiles_conversation.utils.SecurityUtils;
-import jakarta.ws.rs.POST;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

@@ -105,7 +105,7 @@ public class ConversationService {
                 "Incorporate playful banter and reply to queries correctly.";
         //log.info(systemMessageStr);
         SystemMessage systemMessage = new SystemMessage(systemMessageStr);
-        List<AbstractMessage> oldMessages  = conversation
+        List<? extends AbstractMessage> oldMessages  = conversation
                 .getMessages()
                 .stream()
                 .map(message -> {
