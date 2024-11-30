@@ -1,6 +1,7 @@
 package com.ai.persona.profiles_conversation.controller;
 
 import com.ai.persona.profiles_conversation.constants.Gender;
+import com.ai.persona.profiles_conversation.dto.PaginatedProfiles;
 import com.ai.persona.profiles_conversation.dto.ProfileDto;
 import com.ai.persona.profiles_conversation.dto.RandomProfileInputDto;
 import com.ai.persona.profiles_conversation.entity.Profile;
@@ -22,7 +23,11 @@ import reactor.core.publisher.Mono;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/profiles")
@@ -87,14 +92,13 @@ public class ProfilesController {
     }
 
     @GetMapping("/matched-bots")
-    public Flux<ResponseEntity<ProfileDto>> getAllMatchedBots() {
+    public Mono<ResponseEntity<PaginatedProfiles>> getAllMatchedBots(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "3") int size
+    ) {
         return profileService
-                .getAllMatchedBots()
-                .map(saved -> {
-                    ProfileDto profileDto = new ProfileDto();
-                    BeanUtils.copyProperties(saved, profileDto);
-                    return ResponseEntity.ok(profileDto);
-                });
+                .getAllMatchedBots(page, size)
+                .map(PaginatedProfiles->ResponseEntity.ok().body(PaginatedProfiles));
     }
 
     @GetMapping("/image/{profileId}")

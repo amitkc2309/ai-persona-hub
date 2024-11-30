@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 import java.util.Set;
 
 @Repository
-public interface ProfileRepository extends ReactiveMongoRepository<Profile,String> {
+public interface ProfileRepository extends ReactiveMongoRepository<Profile,String>,ProfileRepoPagination {
     Mono<Profile> findByEmail(String email);
 
     Flux<Profile> findAllById(Set<String> ids);

@@ -2,6 +2,7 @@ package com.ai.persona.profiles_conversation.service;
 
 import com.ai.persona.profiles_conversation.constants.CommonConstants;
 import com.ai.persona.profiles_conversation.constants.Gender;
+import com.ai.persona.profiles_conversation.dto.PaginatedProfiles;
 import com.ai.persona.profiles_conversation.dto.ProfileDto;
 import com.ai.persona.profiles_conversation.entity.Profile;
 import com.ai.persona.profiles_conversation.exception.ResourceNotFoundException;
@@ -32,6 +33,8 @@ import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -65,8 +68,8 @@ public class ProfileService {
     }
 
     public Mono<Profile> getRandomSavedBotProfileByGender(String gender, String excludeLastRandomProfileId) {
-        if (gender == null || gender.length()<2) {
-            if (excludeLastRandomProfileId != null && excludeLastRandomProfileId.length()>1) {
+        if (gender == null || gender.length() < 2) {
+            if (excludeLastRandomProfileId != null && excludeLastRandomProfileId.length() > 1) {
                 return profileRepository
                         .getRandomBotProfileExceptLastRandom(excludeLastRandomProfileId)
                         .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", "-no gender specified")));
@@ -74,14 +77,12 @@ public class ProfileService {
                 return profileRepository
                         .getRandomBotProfile()
                         .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", "-no gender specified")));
-        }
-        else {
-            if(excludeLastRandomProfileId != null && excludeLastRandomProfileId.length()>1) {
+        } else {
+            if (excludeLastRandomProfileId != null && excludeLastRandomProfileId.length() > 1) {
                 return profileRepository
-                        .getRandomBotProfileByGenderExceptLastRandom(gender,excludeLastRandomProfileId)
+                        .getRandomBotProfileByGenderExceptLastRandom(gender, excludeLastRandomProfileId)
                         .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", gender)));
-            }
-            else {
+            } else {
                 return profileRepository
                         .getRandomBotProfileByGender(gender)
                         .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", gender)));
@@ -96,15 +97,15 @@ public class ProfileService {
         return profileRepository.save(profile);
     }
 
-    public String generateRandomBotProfile(Gender gender,Integer age, String ethnicity) {
+    public String generateRandomBotProfile(Gender gender, Integer age, String ethnicity) {
         int randomAge = age != null ? age.intValue() : CommonUtility.getRandomAge();
         Gender randomGender = gender != null ? gender : CommonUtility.getRandomGender();
         String personalityType = CommonUtility.getPersonalityTypes();
         String randomEthnicity = ethnicity != null ? ethnicity : CommonUtility.getRandomEthnicity();
         String prompt =
-                "Create a random online profile persona of a " + randomAge +" years old"+
-                " with personality Type " + personalityType + ",ethnicity as " + randomEthnicity +" and gender as "+randomGender
-                + ". Generate the first name, last name, email, myersBriggsPersonalityType and bio as well. ";
+                "Create a random online profile persona of a " + randomAge + " years old" +
+                        " with personality Type " + personalityType + ",ethnicity as " + randomEthnicity + " and gender as " + randomGender
+                        + ". Generate the first name, last name, email, myersBriggsPersonalityType and bio as well. ";
         log.info("prompt to create profile: " + prompt);
         UserMessage userMessage = new UserMessage(prompt);
         ChatResponse response = ollamaChatModel.call(new Prompt(userMessage,
@@ -116,8 +117,8 @@ public class ProfileService {
     public Mono<Profile> generateAndSaveImage(Profile profile) {
         log.info("****STABILITY_AI=" + CommonConstants.getStabilityAi());
         String prompt = "Online profile picture of a " + profile.getAge() + " year old," + profile.getEthnicity() + " " +
-                profile.getGender()+" named "+profile.getFirstName()+" "+profile.getLastName() +
-                " with personality Type " + profile.getMyersBriggsPersonalityType()+" and Bio:"+profile.getBio()+
+                profile.getGender() + " named " + profile.getFirstName() + " " + profile.getLastName() +
+                " with personality Type " + profile.getMyersBriggsPersonalityType() + " and Bio:" + profile.getBio() +
                 ". Photorealistic skin texture and details, individual hairs and pores visible, highly detailed, " +
                 "photorealistic, hyperrealistic, subsurface scattering, 4k DSLR, ultrarealistic, best quality, masterpiece";
         log.info("*******prompt for generating image " + prompt);
@@ -144,7 +145,7 @@ public class ProfileService {
                     if (imageResponse != null && imageResponse.images() != null && !imageResponse.images().isEmpty()) {
                         String base64Image = imageResponse.images().get(0);
                         byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-                        log.info("****IMAGE_DIR="+CommonConstants.getImageDir());
+                        log.info("****IMAGE_DIR=" + CommonConstants.getImageDir());
                         String directoryPath = CommonConstants.getImageDir();
                         String filePath = directoryPath + "/" + profile.getId() + ".png";
                         Path directory = Paths.get(directoryPath);
@@ -189,7 +190,7 @@ public class ProfileService {
         String username = SecurityUtils.getUsername();
         return getProfileByUsername(username)
                 .switchIfEmpty(Mono.error(new ResourceNotFoundException("user", username)))
-                .flatMap(SavedUser-> this.addMatchedProfile(SavedUser.getId(),matchedId));
+                .flatMap(SavedUser -> this.addMatchedProfile(SavedUser.getId(), matchedId));
 
     }
 
@@ -221,15 +222,39 @@ public class ProfileService {
                 .switchIfEmpty(Mono.error(new ResourceNotFoundException("profile1", "AI Bots")));
     }
 
-    public Flux<Profile> getAllMatchedBots() {
+    public Mono<PaginatedProfiles> getAllMatchedBots(int page, int size) {
         String username = SecurityUtils.getUsername();
         return getProfileByUsername(username)
                 .switchIfEmpty(Mono.error(new ResourceNotFoundException("user", username)))
-                .flatMapMany(savedUser->
+                .flatMap(savedUser ->
                         {
                             log.info("***********************inside service method getAllMatchedBots ");
-                           return profileRepository.findAllById(savedUser.getMatchedProfiles());
+                            Set<String> matchedProfiles = savedUser.getMatchedProfiles();
+                            int totalCount = matchedProfiles.size();
+                            return profileRepository
+                                    .findAllByIdWithPagination(matchedProfiles, page, size)
+                                    .collectList()
+                                    .map(profiles -> {
+                                        List<ProfileDto> profileDtos = profiles.stream()
+                                                .map(profile -> {
+                                                    ProfileDto profileDto = new ProfileDto();
+                                                    BeanUtils.copyProperties(profile, profileDto);
+                                                    return profileDto;
+                                                })
+                                                .collect(Collectors.toList());
+                                        PaginatedProfiles paginatedProfiles = new PaginatedProfiles();
+                                        paginatedProfiles.setProfiles(profileDtos);
+                                        paginatedProfiles.setPageSize(size);
+                                        paginatedProfiles.setTotalCount(totalCount);
+                                        paginatedProfiles.setCurrentPage(page);
+                                        paginatedProfiles.setTotalPages(calculateTotalPages(totalCount,size));
+                                        return paginatedProfiles;
+                                    });
                         }
                 );
+    }
+
+    private int calculateTotalPages(int totalItems, int size) {
+        return (int) Math.ceil((double) totalItems / size);
     }
 }

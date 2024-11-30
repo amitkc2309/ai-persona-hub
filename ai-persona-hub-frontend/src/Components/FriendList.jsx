@@ -1,40 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { styled } from '@mui/material/styles';
-import AppBar from '@mui/material/AppBar';
+import React, {useEffect, useState} from 'react';
 import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
-import Fab from '@mui/material/Fab';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemText from '@mui/material/ListItemText';
-import ListSubheader from '@mui/material/ListSubheader';
 import Avatar from '@mui/material/Avatar';
-import MenuIcon from '@mui/icons-material/Menu';
-import AddIcon from '@mui/icons-material/Add';
-import SearchIcon from '@mui/icons-material/Search';
-import MoreIcon from '@mui/icons-material/MoreVert';
-import AppBarTop from "./AppBarTop"
-import { Card, CardActions, CardContent, CardHeader, Divider, Tooltip } from '@mui/material';
-import { Chat } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import {Card, CardActions} from '@mui/material';
+import {Chat} from '@mui/icons-material';
+import SkipNextIcon from '@mui/icons-material/SkipNext';
+import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
+import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
+import Typography from "@mui/material/Typography";
 
 export default function FriendList() {
     const navigate = useNavigate();
     const [friends, setFriends] = useState(null);
     const [error, setError] = useState(null);
+    const [pagination, setPagination] = useState({ currentPage: 0, totalPages: 1 });
 
-    const getAIFriends = async () => {
+    const getAIFriends = async (page=0) => {
         try {
             var response = await axios.
-                get(`/profiles/matched-bots`);
-            const friendsData = response.data.map(friend => friend.body);
-            setFriends(friendsData);
+                get(`/profiles/matched-bots?page=${page}&size=3`);
+            const { profiles, currentPage, totalPages } = response.data;
+            //const friendsData = response.data.profiles;//.map(friend => friend.body);
+            console.log("friendsData="+profiles);
+            setFriends(profiles);
+            setPagination({ currentPage, totalPages });
             setError(null);
         }
         catch (e) {
@@ -53,7 +48,7 @@ export default function FriendList() {
     };
 
     useEffect(() => {
-        getAIFriends();
+        getAIFriends(0);
     }, []);
 
     const goToChat = (id) => {
@@ -64,6 +59,21 @@ export default function FriendList() {
     const goToProfile = (id) => {
         const friend = friends.find(f => f.id === id);
         navigate('/', { state: { viewprofile: friend } });
+    };
+
+    const goToNextPage = () => {
+        console.log("goToNextPage currentPage:"+pagination.currentPage);
+        console.log("goToNextPage totalPages:"+pagination.totalPages);
+        if (pagination.currentPage < pagination.totalPages - 1) {
+            getAIFriends(pagination.currentPage + 1);
+        }
+    };
+
+    const goToPreviousPage = () => {
+        console.log("goToPreviousPage currentPage:"+pagination.currentPage);
+        if (pagination.currentPage > 0) {
+            getAIFriends(pagination.currentPage - 1);
+        }
     };
 
     return (
@@ -109,6 +119,23 @@ export default function FriendList() {
                             </React.Fragment>
                         ))}
                     </List>)}
+                    {/* Pagination controls */}
+                    <Box sx={{mt: 1, display: 'flex', justifyContent: 'space-between'}}>
+                        <IconButton disabled={pagination.currentPage === 0}
+                                    aria-label="previous" sx={{color: '#007bff'}} onClick={goToPreviousPage}>
+                            <SkipPreviousIcon/>
+                            <Typography variant="subtitle2">
+                                Previous
+                            </Typography>
+                        </IconButton>
+                        <IconButton disabled={pagination.currentPage === pagination.totalPages - 1}
+                            aria-label="next" sx={{color: '#007bff'}} onClick={goToNextPage}>
+                            <Typography variant="subtitle2">
+                                Next
+                            </Typography>
+                            <SkipNextIcon/>
+                        </IconButton>
+                    </Box>
                 </Paper>
             </Box>
         </React.Fragment>
