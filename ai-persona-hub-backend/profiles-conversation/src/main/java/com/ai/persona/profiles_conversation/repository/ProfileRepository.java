@@ -24,10 +24,22 @@ public interface ProfileRepository extends ReactiveMongoRepository<Profile,Strin
     Mono<Profile> getRandomBotProfileByGender(String gender);
 
     @Aggregation(pipeline = {
+            "{ $match: { gender: ?0, isBot: true, _id: { $ne: ?1 } } }",
+            "{ $sample: { size: 1 } }"
+    })
+    Mono<Profile> getRandomBotProfileByGenderExceptLastRandom(String gender,String excludeLastRandomProfileId);
+
+    @Aggregation(pipeline = {
             "{ $match: { isBot: true } }",
             "{ $sample: { size: 1 } }"
     })
     Mono<Profile> getRandomBotProfile();
+
+    @Aggregation(pipeline = {
+            "{ $match: { isBot: true, _id: { $ne: ?0 } } }",
+            "{ $sample: { size: 1 } }"
+    })
+    Mono<Profile> getRandomBotProfileExceptLastRandom(String excludeLastRandomProfileId);
 
     @Query("{ 'isBot': true }")
     Flux<Profile> findAllBots();

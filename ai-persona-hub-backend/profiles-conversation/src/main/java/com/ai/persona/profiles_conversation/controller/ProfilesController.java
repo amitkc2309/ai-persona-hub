@@ -55,10 +55,12 @@ public class ProfilesController {
     }
 
     @GetMapping("/random")
-    public Mono<ResponseEntity<ProfileDto>> getRandomSavedProfileByGender(@RequestParam(required = false) String gender) {
+    public Mono<ResponseEntity<ProfileDto>> getRandomSavedProfileByGender(
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) String excludeLastRandomProfileId) {
         String username = SecurityUtils.getUsername();
         return profileService
-                .getRandomSavedBotProfileByGender(gender)
+                .getRandomSavedBotProfileByGender(gender,excludeLastRandomProfileId)
                 .flatMap(random -> {
                     ProfileDto profileDto = new ProfileDto();
                     BeanUtils.copyProperties(random, profileDto);

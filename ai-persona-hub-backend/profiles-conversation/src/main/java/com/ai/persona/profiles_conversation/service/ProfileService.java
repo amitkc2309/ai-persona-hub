@@ -64,15 +64,28 @@ public class ProfileService {
                 .switchIfEmpty(Mono.empty());
     }
 
-    public Mono<Profile> getRandomSavedBotProfileByGender(String gender) {
-        if (gender == null) {
-            return profileRepository
-                    .getRandomBotProfile()
-                    .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", "-no gender specified")));
-        } else {
-            return profileRepository
-                    .getRandomBotProfileByGender(gender)
-                    .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", gender)));
+    public Mono<Profile> getRandomSavedBotProfileByGender(String gender, String excludeLastRandomProfileId) {
+        if (gender == null || gender.length()<2) {
+            if (excludeLastRandomProfileId != null && excludeLastRandomProfileId.length()>1) {
+                return profileRepository
+                        .getRandomBotProfileExceptLastRandom(excludeLastRandomProfileId)
+                        .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", "-no gender specified")));
+            } else
+                return profileRepository
+                        .getRandomBotProfile()
+                        .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", "-no gender specified")));
+        }
+        else {
+            if(excludeLastRandomProfileId != null && excludeLastRandomProfileId.length()>1) {
+                return profileRepository
+                        .getRandomBotProfileByGenderExceptLastRandom(gender,excludeLastRandomProfileId)
+                        .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", gender)));
+            }
+            else {
+                return profileRepository
+                        .getRandomBotProfileByGender(gender)
+                        .switchIfEmpty(Mono.error(new ResourceNotFoundException("Profile", gender)));
+            }
         }
     }
 
@@ -213,7 +226,10 @@ public class ProfileService {
         return getProfileByUsername(username)
                 .switchIfEmpty(Mono.error(new ResourceNotFoundException("user", username)))
                 .flatMapMany(savedUser->
-                      profileRepository.findAllById(savedUser.getMatchedProfiles())
+                        {
+                            log.info("***********************inside service method getAllMatchedBots ");
+                           return profileRepository.findAllById(savedUser.getMatchedProfiles());
+                        }
                 );
     }
 }
