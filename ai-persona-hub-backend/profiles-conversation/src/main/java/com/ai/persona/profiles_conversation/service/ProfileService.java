@@ -97,17 +97,6 @@ public class ProfileService {
         ChatResponse response = ollamaChatModel.call(new Prompt(userMessage,
                 OllamaOptions.builder().withFunction("saveGeneratedProfile").build()));
         log.info("response from ollama:" + response);
-        //Below un-blocking code is better but it does not work on docker for some reason
-        /*CompletableFuture.supplyAsync(()->{
-            log.info("prompt to create profile: " + prompt);
-            UserMessage userMessage = new UserMessage(prompt);
-            ChatResponse response = ollamaChatModel.call(new Prompt(userMessage,
-                    OllamaOptions.builder().withFunction("saveGeneratedProfile").build()));
-            log.info("response from ollama:"+response);
-            return response;
-        });
-        return "Profile generation is in progress";
-         */
         return response.getResult().getOutput().getContent();
     }
 

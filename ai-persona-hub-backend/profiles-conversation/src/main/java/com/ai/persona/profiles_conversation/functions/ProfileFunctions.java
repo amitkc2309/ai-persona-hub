@@ -15,6 +15,8 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.HashSet;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -29,7 +31,7 @@ public class ProfileFunctions {
 
     @Bean
     @Description("Save the generated profile information")
-    public Function<ProfileDtoGenerated, Void> saveGeneratedProfile() {
+    public Consumer<ProfileDtoGenerated> saveGeneratedProfile() {
         return (ProfileDtoGenerated generated) -> {
             ProfileDto profileDto = new ProfileDto();
             BeanUtils.copyProperties(generated,profileDto);
@@ -38,13 +40,13 @@ public class ProfileFunctions {
             profileDto.setImageUrls(null);
             profileDto.setUsername(UUID.randomUUID().toString());
             log.info("********************************saving profile "+profileDto.toString());
-            Profile saved = profileService.saveProfile(profileDto).block();
-            if(saved!=null) {
-                profileService.generateAndSaveImage(saved)
-                        .subscribeOn(Schedulers.boundedElastic())
-                        .subscribe();
-            }
-            return null;
+            AtomicReference<Profile> saved = new AtomicReference<>();
+            profileService
+                    .saveProfile(profileDto)
+                    .doOnNext(saved::set) //set the saved profile in AtomicReference
+                    .doFinally(signalType ->
+                            profileService.generateAndSaveImage(saved.get()).subscribe())
+                    .subscribe();
         };
     }
 }
