@@ -121,19 +121,19 @@ public class ConversationService {
         Prompt prompt = new Prompt(allMessages);
         return ollamaChatModel
                 .stream(prompt)
-                .map(chatResponse -> chatResponse.getResult().getOutput().getContent());
+                .map(chatResponse -> chatResponse.getResult().getOutput().getText());
 
     }
 
     public String testAI(String message){
         Prompt prompt = new Prompt(message);
-        return ollamaChatModel.call(prompt).getResult().getOutput().getContent();
+        return ollamaChatModel.call(prompt).getResult().getOutput().getText();
     }
 
     public Flux<String> testAIStream(String message){
         Prompt prompt = new Prompt(message);
         return ollamaChatModel
                 .stream(prompt)
-                .map(chatResponse -> chatResponse.getResult().getOutput().getContent());
+                .map(chatResponse -> chatResponse.getResult().getOutput().getText());
     }
 }

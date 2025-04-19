@@ -109,9 +109,9 @@ public class ProfileService {
         log.info("prompt to create profile: " + prompt);
         UserMessage userMessage = new UserMessage(prompt);
         ChatResponse response = ollamaChatModel.call(new Prompt(userMessage,
-                OllamaOptions.builder().withFunction("saveGeneratedProfile").build()));
+                OllamaOptions.builder().toolNames("saveGeneratedProfile").build()));
         log.info("response from ollama:" + response);
-        return response.getResult().getOutput().getContent();
+        return response.getResult().getOutput().getText();
     }
 
     public Mono<Profile> generateAndSaveImage(Profile profile) {
