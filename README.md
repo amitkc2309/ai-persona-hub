@@ -47,7 +47,7 @@ scalability and easy maintenance.
 - You can create as many AI profiles as you want. These profiles will be visible on Home Tab. You can add a profile as favourite and it will be visible to you in `AI-Chat` tab.
 - You can chat with any AI Profile by clicking on chat widget button.
 
-## Disclaimer
+## Usage Notice
 
 This project is for **educational and learning purposes only**. All configurations and setups are designed for **demo environments**.  
 The maintainers of this project are **not responsible** for any loss, damage, or misuse resulting from using this codebase.
