@@ -52,6 +52,18 @@ public class ConversationService {
         return conversationRepository.save(conversation);
     }
 
+    /*
+     * NOTE:
+     * We are getting username/claims here (outside flatMap/map) because inside the reactive
+     * chain (map/flatMap etc.) SecurityUtils.getUsername() will NOT work as SecurityContextHolder
+     * does not work inside reactive chain.
+     *
+     * That’s why we grab it up front before entering the Flux/Mono pipeline.
+     *
+     * Correct fix (to do later): Use ReactiveSecurityContextHolder so that we can
+     * safely fetch username/claims INSIDE the reactive chain.
+     */
+
     public Flux<String> addMessageToConversation(String conversationId, ChatMessage chatMessage, String profile) {
         String username = SecurityUtils.getUsername();
         String firstName = SecurityUtils.getClaimAsString("given_name");
