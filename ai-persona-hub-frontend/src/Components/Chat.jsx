@@ -7,6 +7,7 @@ import AppBarTop from "./AppBarTop";
 import { Box } from "@mui/material";
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import {useAIModel} from "./AIModelContext.jsx";
 
 export default function Chat() {
     const location = useLocation();
@@ -17,6 +18,10 @@ export default function Chat() {
     const [sentText, setSentText] = useState('');
     const [error, setError] = useState('');
     const [typing, setTyping] = useState('');
+    const {
+        aiProvider,
+        modelName
+    } = useAIModel();
 
     const handleSend = async () => {
         let nextId = 0;
@@ -30,6 +35,10 @@ export default function Chat() {
         const sentMessage = {
             id: nextId,
             messageText: sentText,
+            aiRequest: {
+                aiProvider: aiProvider,
+                modelName: modelName
+            }
         };
 
         try {

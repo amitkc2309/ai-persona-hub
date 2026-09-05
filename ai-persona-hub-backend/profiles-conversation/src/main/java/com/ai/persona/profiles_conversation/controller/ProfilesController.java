@@ -171,7 +171,7 @@ public class ProfilesController {
         Integer age = randomProfileInputDto.getAge();
         String ethnicity = randomProfileInputDto.getEthnicity();
         Gender gender = randomProfileInputDto.getGender();
-        String response = profileService.generateRandomBotProfile(gender, age, ethnicity);
+        String response = profileService.generateRandomBotProfile(gender, age, ethnicity, randomProfileInputDto.getAiRequest());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

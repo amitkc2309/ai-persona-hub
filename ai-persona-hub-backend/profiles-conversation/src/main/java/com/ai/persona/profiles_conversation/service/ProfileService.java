@@ -2,28 +2,28 @@ package com.ai.persona.profiles_conversation.service;
 
 import com.ai.persona.profiles_conversation.constants.CommonConstants;
 import com.ai.persona.profiles_conversation.constants.Gender;
+import com.ai.persona.profiles_conversation.dto.AiRequest;
 import com.ai.persona.profiles_conversation.dto.PaginatedProfiles;
 import com.ai.persona.profiles_conversation.dto.ProfileDto;
 import com.ai.persona.profiles_conversation.entity.Profile;
 import com.ai.persona.profiles_conversation.exception.ResourceNotFoundException;
+import com.ai.persona.profiles_conversation.factory.ChatClientFactory;
+import com.ai.persona.profiles_conversation.factory.ChatOptionsFactory;
 import com.ai.persona.profiles_conversation.repository.ProfileRepository;
 import com.ai.persona.profiles_conversation.utils.CommonUtility;
 import com.ai.persona.profiles_conversation.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
-import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.ollama.OllamaChatModel;
-import org.springframework.ai.ollama.api.OllamaOptions;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,9 +42,11 @@ import java.util.stream.Collectors;
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
-    private final OllamaChatModel ollamaChatModel;
-
     private final WebClient webClient;
+    private final ChatClientFactory chatClientFactory;
+    private final ChatOptionsFactory chatOptionsFactory;
+    @Value("classpath:/templates/GenerateRandomBotProfile.st")
+    Resource randomBotProfilePrompt;
 
     record ImageResponse(List<String> images) {
     }
@@ -97,21 +99,24 @@ public class ProfileService {
         return profileRepository.save(profile);
     }
 
-    public String generateRandomBotProfile(Gender gender, Integer age, String ethnicity) {
+    public String generateRandomBotProfile(Gender gender, Integer age, String ethnicity, AiRequest aiRequest) {
         int randomAge = age != null ? age.intValue() : CommonUtility.getRandomAge();
         Gender randomGender = gender != null ? gender : CommonUtility.getRandomGender();
         String personalityType = CommonUtility.getPersonalityTypes();
         String randomEthnicity = ethnicity != null ? ethnicity : CommonUtility.getRandomEthnicity();
-        String prompt =
-                "Create a random online profile persona of a " + randomAge + " years old" +
-                        " with personality Type " + personalityType + ",ethnicity as " + randomEthnicity + " and gender as " + randomGender
-                        + ". Generate the first name, last name, email, myersBriggsPersonalityType and bio as well. ";
-        log.info("prompt to create profile: " + prompt);
-        UserMessage userMessage = new UserMessage(prompt);
-        ChatResponse response = ollamaChatModel.call(new Prompt(userMessage,
-                OllamaOptions.builder().toolNames("saveGeneratedProfile").build()));
-        log.info("response from ollama:" + response);
-        return response.getResult().getOutput().getText();
+        ChatClient chatClient = chatClientFactory.getChatClient(aiRequest);
+        return chatClient.prompt()
+                .options(chatOptionsFactory.buildChatOptions(aiRequest))
+                .user(promptUserSpec ->
+                        promptUserSpec
+                                .text(randomBotProfilePrompt)
+                                .param("age", randomAge)
+                                .param("personalityType", personalityType)
+                                .param("ethnicity", randomEthnicity)
+                                .param("gender", randomGender)
+                )
+                .toolNames("saveGeneratedProfile")
+                .call().content();
     }
 
     public Mono<Profile> generateAndSaveImage(Profile profile) {

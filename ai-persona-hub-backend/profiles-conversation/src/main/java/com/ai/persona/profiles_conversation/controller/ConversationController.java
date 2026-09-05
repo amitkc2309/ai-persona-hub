@@ -1,6 +1,6 @@
 package com.ai.persona.profiles_conversation.controller;
 
-import com.ai.persona.profiles_conversation.dto.ChatMessage;
+import com.ai.persona.profiles_conversation.dto.ChatMessageDto;
 import com.ai.persona.profiles_conversation.dto.ConversationDto;
 import com.ai.persona.profiles_conversation.service.ConversationService;
 import com.ai.persona.profiles_conversation.utils.SecurityUtils;
@@ -48,16 +48,10 @@ public class ConversationController {
     /*@PutMapping(value = "/{conversationId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)*/
     @PutMapping("/{conversationId}")
     public Flux<String> addMessageToConversation(@PathVariable String conversationId,
-                                                               @RequestBody ChatMessage chatMessage,
+                                                               @RequestBody ChatMessageDto chatMessageDto,
                                                                @RequestParam String profile) {
         return conversationService
-                .addMessageToConversation(conversationId,chatMessage,profile);
-    }
-
-    @GetMapping("/test-ai")
-    public ResponseEntity<String> testAI(@RequestParam String prompt) {
-        String chatResponse = conversationService.testAI(prompt);
-        return ResponseEntity.ok().body(chatResponse);
+                .addMessageToConversation(conversationId,chatMessageDto,profile);
     }
 
     /**
@@ -66,10 +60,10 @@ public class ConversationController {
      * prefix "data" like "data: {} "
      */
 
-    @GetMapping(value = "/test-ai-stream",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> testAIStream(@RequestParam String prompt) {
+    @PostMapping(value = "/test-ai-stream",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> testAIStream(@RequestBody ChatMessageDto ChatMessageDto) {
         return conversationService
-                .testAIStream(prompt);
+                .testAIStream(ChatMessageDto);
     }
 
 }

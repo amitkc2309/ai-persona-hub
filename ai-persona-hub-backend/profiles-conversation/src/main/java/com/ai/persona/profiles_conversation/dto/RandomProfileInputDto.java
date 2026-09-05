@@ -8,4 +8,5 @@ public class RandomProfileInputDto {
     Gender gender;
     Integer age;
     String ethnicity;
+    AiRequest aiRequest;
 }

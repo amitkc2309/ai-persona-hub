@@ -17,12 +17,10 @@ spring:
 
   #Ollama
   ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
     ollama:
       base-url: http://${machine_url}:11434
-      chat:
-        options:
-          temperature: 0.7
-          model: llama3.1:latest #mistral
 
 keycloak_url: http://${machine_url}:7080
 
@@ -34,12 +32,25 @@ stability:
   ai: http://${machine_url}:7860/sdapi/v1/txt2img
   quality: 30 # Higher value is good. Up to 50
 
+#Custom application properties
+application:
+  default-ai-provider: OLLAMA
+  models:
+    openai:
+      - gpt-5
+      - gpt-5-mini
+    ollama:
+      - llama3.1
 
 logging:
   level:
     root: ERROR
     org:
       springframework:
+        ai:
+          chat:
+            client:
+              advisor: DEBUG
         data:
           mongodb: ERROR
         boot: INFO
@@ -59,13 +70,3 @@ management:
     health:
       probes:
         enabled: true
-
-#For service discovery
-eureka:
-  instance:
-    preferIpAddress: true
-  client:
-    fetchRegistry: true
-    registerWithEureka: true
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/

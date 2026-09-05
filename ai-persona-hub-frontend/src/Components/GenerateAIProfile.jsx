@@ -3,6 +3,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useState } from "react";
 import axios from "axios";
 import Cookies from 'js-cookie';
+import {useAIModel} from "./AIModelContext.jsx";
 
 export default function GenerateAIProfile() {
     const [ageError, setAgeError] = useState('');
@@ -11,6 +12,10 @@ export default function GenerateAIProfile() {
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [loading, setLoading] = useState(false);
     const [generatedProfile, setGeneratedProfile] = useState(null);
+    const {
+        aiProvider,
+        modelName
+    } = useAIModel();
 
     const handleCreateAIProfile = async (event) => {
         event.preventDefault();
@@ -22,6 +27,10 @@ export default function GenerateAIProfile() {
             gender: data.get('gender'),
             age: data.get('age'),
             ethnicity: data.get('ethnicity'),
+            aiRequest: {
+                aiProvider: aiProvider,
+                modelName: modelName
+            }
         };
         try {
             const csrfToken=Cookies.get('XSRF-TOKEN');

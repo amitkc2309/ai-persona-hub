@@ -20,6 +20,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { useAIModel } from "./AIModelContext.jsx";
+import {Select} from "@mui/material";
 
 const pages = ['HOME', 'AI-CHAT', 'GENERATE-AI-FRIENDS'];
 const settings = ['My Profile', 'Logout'];
@@ -32,8 +34,13 @@ function AppBarTop() {
   const [error, setError] = useState(null);
   const [csrf, setCsrf] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
-
-
+  const {
+    availableModels,
+    aiProvider,
+    modelName,
+    setAiProvider,
+    setModelName,
+  } = useAIModel();
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -177,6 +184,31 @@ function AppBarTop() {
                 </Button>
               ))}
             </Box>
+            <Select
+                value={aiProvider}
+                onChange={(e) => {
+                  const provider = e.target.value;
+                  setAiProvider(provider);
+                  setModelName(availableModels[provider][0]);
+                }}
+            >
+              {Object.keys(availableModels).map((provider) => (
+                  <MenuItem key={provider} value={provider}>
+                    {provider}
+                  </MenuItem>
+              ))}
+            </Select>
+            <Select
+                value={modelName}
+                onChange={(e) => setModelName(e.target.value)}
+            >
+              {(availableModels[aiProvider] || []).map((model) => (
+                  <MenuItem key={model} value={model}>
+                    {model}
+                  </MenuItem>
+              ))}
+            </Select>
+
 
             {user &&
               (<Box sx={{ flexGrow: 0 }}>
