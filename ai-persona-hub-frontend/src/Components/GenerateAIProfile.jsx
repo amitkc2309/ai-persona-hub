@@ -150,14 +150,27 @@ export default function GenerateAIProfile() {
                                     fontWeight: 'bold',
                                     color: theme => theme.palette.primary.main
                                 }}>
-                                    {generatedProfile}
+                                    Name: {generatedProfile.firstName} {generatedProfile.lastName}
                                 </Typography>
+
+                                <Typography variant="body2">
+                                    Email: {generatedProfile.email}
+                                </Typography>
+
+                                <Typography variant="body2">
+                                    Personality: {generatedProfile.myersBriggsPersonalityType}
+                                </Typography>
+
+                                <Typography variant="body2">
+                                    Bio: {generatedProfile.bio}
+                                </Typography>
+
                                 <Typography variant="body2" color="text.secondary" sx={{
                                     fontWeight: 'bold',
-                                    mt:1,
+                                    mt: 1,
                                 }}>
-                                    Note: We are generating profile image as well which may take a while 
-                                    depending on AI molel's computing resources.
+                                    Note: We are generating profile image as well which may take a while
+                                    depending on AI model's computing resources.
                                 </Typography>
                             </CardContent>
                         </Card>

@@ -5,6 +5,7 @@ import com.ai.persona.profiles_conversation.constants.Gender;
 import com.ai.persona.profiles_conversation.dto.AiRequest;
 import com.ai.persona.profiles_conversation.dto.PaginatedProfiles;
 import com.ai.persona.profiles_conversation.dto.ProfileDto;
+import com.ai.persona.profiles_conversation.dto.ProfileDtoGenerated;
 import com.ai.persona.profiles_conversation.entity.Profile;
 import com.ai.persona.profiles_conversation.exception.ResourceNotFoundException;
 import com.ai.persona.profiles_conversation.factory.ChatClientFactory;
@@ -24,16 +25,14 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -96,27 +95,55 @@ public class ProfileService {
         Profile profile = new Profile();
         BeanUtils.copyProperties(profileDto, profile, "id");
         profile.setMatchedProfiles(new HashSet<>());
+        log.info("*****saving profile:"+profile);
         return profileRepository.save(profile);
     }
 
-    public String generateRandomBotProfile(Gender gender, Integer age, String ethnicity, AiRequest aiRequest) {
-        int randomAge = age != null ? age.intValue() : CommonUtility.getRandomAge();
+
+    public Mono<ProfileDto> generateRandomBotProfile(Gender gender, Integer age, String ethnicity, AiRequest aiRequest) {
+        int randomAge = age != null ? age : CommonUtility.getRandomAge();
         Gender randomGender = gender != null ? gender : CommonUtility.getRandomGender();
         String personalityType = CommonUtility.getPersonalityTypes();
         String randomEthnicity = ethnicity != null ? ethnicity : CommonUtility.getRandomEthnicity();
         ChatClient chatClient = chatClientFactory.getChatClient(aiRequest);
-        return chatClient.prompt()
-                .options(chatOptionsFactory.buildChatOptions(aiRequest))
-                .user(promptUserSpec ->
-                        promptUserSpec
-                                .text(randomBotProfilePrompt)
-                                .param("age", randomAge)
-                                .param("personalityType", personalityType)
-                                .param("ethnicity", randomEthnicity)
-                                .param("gender", randomGender)
+        return Mono.fromCallable(() ->
+                        chatClient.prompt()
+                                .options(chatOptionsFactory.buildChatOptions(aiRequest))
+                                .user(promptUserSpec -> promptUserSpec
+                                        .text(randomBotProfilePrompt)
+                                        .param("age", randomAge)
+                                        .param("personalityType", personalityType)
+                                        .param("ethnicity", randomEthnicity)
+                                        .param("gender", randomGender)
+                                )
+                                .call()
+                                .entity(ProfileDtoGenerated.class)
                 )
-                .toolNames("saveGeneratedProfile")
-                .call().content();
+                .map(generated -> {
+                    ProfileDto profileDto = new ProfileDto();
+                    BeanUtils.copyProperties(generated, profileDto);
+                    profileDto.setIsBot(Boolean.TRUE);
+                    profileDto.setMatchedProfiles(new HashSet<>());
+                    profileDto.setImageUrls(null);
+                    profileDto.setUsername(UUID.randomUUID().toString());
+                    return profileDto;
+                })
+                // 1. Save profile entity in DB
+                .flatMap(this::saveProfile)
+                // 2. Fire-and-forget image generation asynchronously
+                .doOnNext(savedProfile ->
+                        generateAndSaveImage(savedProfile)
+                                .subscribeOn(Schedulers.boundedElastic())
+                                .doOnSuccess(img -> log.info("Background image generation completed for user: " + savedProfile.getUsername()))
+                                .doOnError(err -> log.severe("Background image generation failed for user: " + savedProfile.getUsername() + " with Error: " + err))
+                                .subscribe()
+                )
+                // 3. Map saved Entity to final ProfileDto to emit to client immediately
+                .map(savedProfile -> {
+                    ProfileDto responseDto = new ProfileDto();
+                    BeanUtils.copyProperties(savedProfile, responseDto);
+                    return responseDto;
+                });
     }
 
     public Mono<Profile> generateAndSaveImage(Profile profile) {

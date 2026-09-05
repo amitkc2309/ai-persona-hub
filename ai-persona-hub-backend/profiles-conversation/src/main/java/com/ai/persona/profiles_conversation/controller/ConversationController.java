@@ -65,5 +65,4 @@ public class ConversationController {
         return conversationService
                 .testAIStream(ChatMessageDto);
     }
-
 }

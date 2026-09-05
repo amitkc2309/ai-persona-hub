@@ -164,15 +164,16 @@ public class ProfilesController {
     }
 
     @PostMapping("/generate-random")
-    public ResponseEntity<String> generateRandomBotProfile(@RequestBody RandomProfileInputDto randomProfileInputDto) {
+    public Mono<ResponseEntity<ProfileDto>> generateRandomBotProfile(@RequestBody(required = false) RandomProfileInputDto randomProfileInputDto) {
         if (randomProfileInputDto == null) {
-            return ResponseEntity.badRequest().body("Invalid input");
+            return Mono.just(ResponseEntity.badRequest().build());
         }
         Integer age = randomProfileInputDto.getAge();
         String ethnicity = randomProfileInputDto.getEthnicity();
         Gender gender = randomProfileInputDto.getGender();
-        String response = profileService.generateRandomBotProfile(gender, age, ethnicity, randomProfileInputDto.getAiRequest());
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return profileService.generateRandomBotProfile(gender, age, ethnicity, randomProfileInputDto.getAiRequest())
+                .map(profileDto -> ResponseEntity.status(HttpStatus.CREATED).body(profileDto))
+                .defaultIfEmpty(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
     @PutMapping
