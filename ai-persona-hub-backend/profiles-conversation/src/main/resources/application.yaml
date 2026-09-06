@@ -41,6 +41,7 @@ application:
       - gpt-5-mini
     ollama:
       - llama3.1
+  image-generation: true
 
 logging:
   level:

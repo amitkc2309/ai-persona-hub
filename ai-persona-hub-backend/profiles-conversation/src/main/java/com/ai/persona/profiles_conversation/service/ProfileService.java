@@ -1,38 +1,22 @@
 package com.ai.persona.profiles_conversation.service;
 
-import com.ai.persona.profiles_conversation.constants.CommonConstants;
-import com.ai.persona.profiles_conversation.constants.Gender;
-import com.ai.persona.profiles_conversation.dto.AiRequest;
 import com.ai.persona.profiles_conversation.dto.PaginatedProfiles;
 import com.ai.persona.profiles_conversation.dto.ProfileDto;
-import com.ai.persona.profiles_conversation.dto.ProfileDtoGenerated;
 import com.ai.persona.profiles_conversation.entity.Profile;
 import com.ai.persona.profiles_conversation.exception.ResourceNotFoundException;
-import com.ai.persona.profiles_conversation.factory.ChatClientFactory;
-import com.ai.persona.profiles_conversation.factory.ChatOptionsFactory;
 import com.ai.persona.profiles_conversation.repository.ProfileRepository;
-import com.ai.persona.profiles_conversation.utils.CommonUtility;
 import com.ai.persona.profiles_conversation.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,11 +25,6 @@ import java.util.stream.Collectors;
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
-    private final WebClient webClient;
-    private final ChatClientFactory chatClientFactory;
-    private final ChatOptionsFactory chatOptionsFactory;
-    @Value("classpath:/templates/GenerateRandomBotProfile.st")
-    Resource randomBotProfilePrompt;
 
     record ImageResponse(List<String> images) {
     }
@@ -98,108 +77,6 @@ public class ProfileService {
         log.info("*****saving profile:"+profile);
         return profileRepository.save(profile);
     }
-
-
-    public Mono<ProfileDto> generateRandomBotProfile(Gender gender, Integer age, String ethnicity, AiRequest aiRequest) {
-        int randomAge = age != null ? age : CommonUtility.getRandomAge();
-        Gender randomGender = gender != null ? gender : CommonUtility.getRandomGender();
-        String personalityType = CommonUtility.getPersonalityTypes();
-        String randomEthnicity = ethnicity != null ? ethnicity : CommonUtility.getRandomEthnicity();
-        ChatClient chatClient = chatClientFactory.getChatClient(aiRequest);
-        return Mono.fromCallable(() ->
-                        chatClient.prompt()
-                                .options(chatOptionsFactory.buildChatOptions(aiRequest))
-                                .user(promptUserSpec -> promptUserSpec
-                                        .text(randomBotProfilePrompt)
-                                        .param("age", randomAge)
-                                        .param("personalityType", personalityType)
-                                        .param("ethnicity", randomEthnicity)
-                                        .param("gender", randomGender)
-                                )
-                                .call()
-                                .entity(ProfileDtoGenerated.class)
-                )
-                .map(generated -> {
-                    ProfileDto profileDto = new ProfileDto();
-                    BeanUtils.copyProperties(generated, profileDto);
-                    profileDto.setIsBot(Boolean.TRUE);
-                    profileDto.setMatchedProfiles(new HashSet<>());
-                    profileDto.setImageUrls(null);
-                    profileDto.setUsername(UUID.randomUUID().toString());
-                    return profileDto;
-                })
-                // 1. Save profile entity in DB
-                .flatMap(this::saveProfile)
-                // 2. Fire-and-forget image generation asynchronously
-                .doOnNext(savedProfile ->
-                        generateAndSaveImage(savedProfile)
-                                .subscribeOn(Schedulers.boundedElastic())
-                                .doOnSuccess(img -> log.info("Background image generation completed for user: " + savedProfile.getUsername()))
-                                .doOnError(err -> log.severe("Background image generation failed for user: " + savedProfile.getUsername() + " with Error: " + err))
-                                .subscribe()
-                )
-                // 3. Map saved Entity to final ProfileDto to emit to client immediately
-                .map(savedProfile -> {
-                    ProfileDto responseDto = new ProfileDto();
-                    BeanUtils.copyProperties(savedProfile, responseDto);
-                    return responseDto;
-                });
-    }
-
-    public Mono<Profile> generateAndSaveImage(Profile profile) {
-        log.info("****STABILITY_AI=" + CommonConstants.getStabilityAi());
-        String prompt = "Online profile picture of a " + profile.getAge() + " year old," + profile.getEthnicity() + " " +
-                profile.getGender() + " named " + profile.getFirstName() + " " + profile.getLastName() +
-                " with personality Type " + profile.getMyersBriggsPersonalityType() + " and Bio:" + profile.getBio() +
-                ". Photorealistic skin texture and details, individual hairs and pores visible, highly detailed, " +
-                "photorealistic, hyperrealistic, subsurface scattering, 4k DSLR, ultrarealistic, best quality, masterpiece";
-        log.info("*******prompt for generating image " + prompt);
-        String negativePrompt = "multiple faces, lowres, text, error, cropped, worst quality, low quality, " +
-                "jpeg artifacts, ugly,flat nose, duplicate, morbid, mutilated, out of frame, extra fingers, mutated hands, " +
-                "poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, " +
-                "bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, " +
-                "missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, " +
-                "username, watermark, signature";
-        String jsonString = String.format("""
-                {
-                  "prompt": "%s",
-                  "negative_prompt": "%s",
-                  "steps": "%s"
-                }
-                """, prompt, negativePrompt, CommonConstants.getStabilityQuality());
-        return webClient.post()
-                .uri(CommonConstants.getStabilityAi())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(jsonString))
-                .retrieve()
-                .bodyToMono(ImageResponse.class)
-                .flatMap(imageResponse -> {
-                    if (imageResponse != null && imageResponse.images() != null && !imageResponse.images().isEmpty()) {
-                        String base64Image = imageResponse.images().get(0);
-                        byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-                        log.info("****IMAGE_DIR=" + CommonConstants.getImageDir());
-                        String directoryPath = CommonConstants.getImageDir();
-                        String filePath = directoryPath + "/" + profile.getId() + ".png";
-                        Path directory = Paths.get(directoryPath);
-                        if (!Files.exists(directory)) {
-                            try {
-                                Files.createDirectories(directory);
-                            } catch (IOException e) {
-                                log.info("***error creating directory for" + profile.getId());
-                            }
-                        }
-                        try (FileOutputStream imageOutFile = new FileOutputStream(filePath)) {
-                            imageOutFile.write(imageBytes);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                        profile.setImageUrls(filePath);
-                        return profileRepository.save(profile);
-                    }
-                    return Mono.empty();
-                });
-    }
-
 
     public Mono<Profile> updateProfile(ProfileDto profileDto) {
         return profileRepository

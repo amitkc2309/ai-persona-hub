@@ -1,10 +1,11 @@
 package com.ai.persona.profiles_conversation.controller;
 
+import com.ai.persona.profiles_conversation.configuration.AiModelsProperties;
 import com.ai.persona.profiles_conversation.constants.Gender;
 import com.ai.persona.profiles_conversation.dto.PaginatedProfiles;
 import com.ai.persona.profiles_conversation.dto.ProfileDto;
 import com.ai.persona.profiles_conversation.dto.RandomProfileInputDto;
-import com.ai.persona.profiles_conversation.entity.Profile;
+import com.ai.persona.profiles_conversation.service.AiModelsService;
 import com.ai.persona.profiles_conversation.service.ProfileService;
 import com.ai.persona.profiles_conversation.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +24,7 @@ import reactor.core.publisher.Mono;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/profiles")
@@ -36,6 +33,7 @@ import java.util.stream.Collectors;
 public class ProfilesController {
 
     private final ProfileService profileService;
+    private final AiModelsService aiModelsService;
 
     @GetMapping("/{profileId}")
     public Mono<ResponseEntity<ProfileDto>> getProfile(@PathVariable String profileId) {
@@ -171,7 +169,7 @@ public class ProfilesController {
         Integer age = randomProfileInputDto.getAge();
         String ethnicity = randomProfileInputDto.getEthnicity();
         Gender gender = randomProfileInputDto.getGender();
-        return profileService.generateRandomBotProfile(gender, age, ethnicity, randomProfileInputDto.getAiRequest())
+        return aiModelsService.generateRandomBotProfile(gender, age, ethnicity, randomProfileInputDto.getAiRequest())
                 .map(profileDto -> ResponseEntity.status(HttpStatus.CREATED).body(profileDto))
                 .defaultIfEmpty(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
